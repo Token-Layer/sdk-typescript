@@ -1,7 +1,15 @@
 {
   "name": "@token-layer/sdk-typescript",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript SDK for Token Layer /token-layer endpoint",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Token-Layer/sdk-typescript.git"
+  },
+  "homepage": "https://github.com/Token-Layer/sdk-typescript#readme",
+  "bugs": {
+    "url": "https://github.com/Token-Layer/sdk-typescript/issues"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,13 +24,15 @@
   ],
   "scripts": {
     "build": "npm run generate:openapi-types && tsc -p tsconfig.json",
+    "changeset": "changeset",
     "clean": "rm -rf dist",
     "example:create-token": "npm run build && tsx examples/create-token.ts",
     "example:create-token:builder-code": "npm run build && tsx examples/create-token-builder-code.ts",
     "example:get-tokens-v2": "npm run build && tsx examples/get-tokens-v2.ts",
     "example:get-tokens-v2:builder-code": "npm run build && tsx examples/get-tokens-v2-builder-code.ts",
     "generate:openapi-types": "npm run generate:token-layer-openapi && openapi-typescript src/generated/token-layer-openapi.yaml -o src/generated/openapi.ts",
-    "generate:token-layer-openapi": "node scripts/extract-token-layer-openapi.mjs"
+    "generate:token-layer-openapi": "node scripts/extract-token-layer-openapi.mjs",
+    "version-packages": "changeset version"
   },
   "keywords": [
     "token-layer",
@@ -36,6 +46,7 @@
     "viem": "^2.41.2"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.7",
     "dotenv": "^17.3.1",
     "openapi-typescript": "^7.13.0",
     "tsx": "^4.20.6",
