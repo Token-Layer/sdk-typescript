@@ -1,0 +1,915 @@
+openapi: 3.0.3
+info:
+  title: Token Layer API
+  version: 1.0.0
+  description: >2-
+    
+          Token Layer is an omnichain token trading platform where users can create and trade tokens across multiple chains.
+
+          This API provides comprehensive access to token operations, trading, earnings,
+          blockchain transactions, and portfolio management.
+
+          ## Base URL
+          All endpoints are accessed via: `https://api.tokenlayer.network/{endpoint}`
+
+          ## Authentication
+          Most endpoints require authentication using an JWT token or API key passed as a Bearer token in the Authorization header.
+
+          ## Rate Limiting
+          API calls are rate limited per user. Please implement appropriate backoff strategies.
+  contact:
+    name: Token Layer API Support
+    url: https://app.tokenlayer.network
+servers:
+  - url: https://api.tokenlayer.network/functions/v1
+    description: Production server
+  - url: https://api.tokenlayer.network/functions/v1
+    description: Staging server
+paths:
+  /token-layer:
+    post:
+      tags:
+        - Transactions
+        - Tokens
+      summary: Execute token-layer action
+      description: >2-
+        
+            Generic action endpoint for Token Layer handlers.
+
+            Supported actions:
+            - register
+            - createToken
+
+            Authentication modes:
+            - JWT bearer
+            - API key bearer
+            - Wallet signature bearer (Authorization: Bearer 0x...)
+
+            For wallet-signature auth:
+            - signature must be a valid EIP-712 signature over the typed request payload
+            - nonce is timestamp in milliseconds
+            - expiresAfter is expiration window in milliseconds
+            - action.message and action.signature are required for register action
+            - action.message must include a 13-digit millisecond timestamp (e.g. "timestamp: 1737600000000")
+            - action.message timestamp must exactly match nonce and be within expiresAfter
+      operationId: tokenLayerAction
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokenLayerRequest"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenLayerResponse"
+        "400":
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenLayerError"
+        "401":
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenLayerError"
+        "429":
+          description: Response 429
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenLayerError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenLayerError"
+  /info:
+    post:
+      tags:
+        - Tokens
+      summary: Get info data
+      description: |2-
+        
+            Generic read-oriented endpoint for info handlers.
+
+            Supported request types:
+            - getTokensV2
+      operationId: getInfo
+      security:
+        - BearerAuth: []
+        - {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InfoRequest"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InfoResponse"
+        "400":
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InfoError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InfoError"
+components:
+  schemas:
+    TokenLayerRequest:
+      anyOf:
+        - $ref: "#/components/schemas/RegisterTokenLayerRequest"
+        - $ref: "#/components/schemas/CreateTokenLayerRequest"
+    TokenLayerResponse:
+      oneOf:
+        - $ref: "#/components/schemas/RegisterActionResponse"
+        - $ref: "#/components/schemas/CreateTokenActionResponse"
+      discriminator:
+        propertyName: actionType
+        mapping:
+          register: "#/components/schemas/RegisterActionResponse"
+          createToken: "#/components/schemas/CreateTokenActionResponse"
+    TokenLayerError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum:
+            - false
+        error:
+          type: string
+        code:
+          type: string
+        details:
+          nullable: true
+      required:
+        - error
+    InfoRequest:
+      oneOf:
+        - $ref: "#/components/schemas/GetTokensV2InfoRequest"
+      discriminator:
+        propertyName: type
+        mapping:
+          getTokensV2: "#/components/schemas/GetTokensV2InfoRequest"
+    InfoResponse:
+      oneOf:
+        - $ref: "#/components/schemas/GetTokensV2InfoResponse"
+      discriminator:
+        propertyName: type
+        mapping:
+          getTokensV2: "#/components/schemas/GetTokensV2InfoResponse"
+    InfoError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum:
+            - false
+        error:
+          type: string
+        code:
+          type: string
+        details:
+          nullable: true
+      required:
+        - error
+    RegisterTokenLayerRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          enum:
+            - Mainnet
+            - Testnet
+          description: Environment indicator included in typed-data payload
+        nonce:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Nonce timestamp in milliseconds. Required for wallet-signature
+            authentication.
+          example: 1737600000000
+        expiresAfter:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Expiration window in milliseconds
+          example: 300000
+        signature:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{130}$
+          description: Required when using wallet signature auth (Bearer wallet address)
+          example: 0x5f2a...
+        signatureChainId:
+          type: string
+          pattern: ^0x[0-9a-fA-F]+$
+          description: Required when using wallet signature auth. EIP-712 domain chainId
+            in hex.
+          example: "0x1"
+        action:
+          $ref: "#/components/schemas/RegisterAction"
+      required:
+        - source
+        - expiresAfter
+        - action
+      description: Envelope for register action
+      title: Register
+    CreateTokenLayerRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          enum:
+            - Mainnet
+            - Testnet
+          description: Environment indicator included in typed-data payload
+        nonce:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Nonce timestamp in milliseconds. Required for wallet-signature
+            authentication.
+          example: 1737600000000
+        expiresAfter:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Expiration window in milliseconds
+          example: 300000
+        signature:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{130}$
+          description: Required when using wallet signature auth (Bearer wallet address)
+          example: 0x5f2a...
+        signatureChainId:
+          type: string
+          pattern: ^0x[0-9a-fA-F]+$
+          description: Required when using wallet signature auth. EIP-712 domain chainId
+            in hex.
+          example: "0x1"
+        action:
+          $ref: "#/components/schemas/CreateTokenAction"
+      required:
+        - source
+        - expiresAfter
+        - action
+      description: Envelope for createToken action
+      title: Create Token
+    RegisterActionResponse:
+      type: object
+      properties:
+        actionType:
+          type: string
+          enum:
+            - register
+        name:
+          type: string
+          enum:
+            - register
+        success:
+          type: boolean
+          enum:
+            - true
+        userId:
+          type: string
+          format: uuid
+        walletAddress:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+        method:
+          type: string
+          enum:
+            - web3
+      required:
+        - actionType
+        - name
+        - success
+        - userId
+        - walletAddress
+        - method
+      title: Register Response
+    CreateTokenActionResponse:
+      type: object
+      properties:
+        actionType:
+          type: string
+          enum:
+            - createToken
+        name:
+          type: string
+          enum:
+            - createToken
+        success:
+          type: boolean
+          enum:
+            - true
+        executed:
+          type: boolean
+        transactionHash:
+          type: string
+        chainId:
+          type: integer
+          description: Numeric chain ID for the transaction
+          example: 84532
+        transaction:
+          type: object
+          properties:
+            to:
+              type: string
+            data:
+              type: string
+            value:
+              type: string
+            gasLimit:
+              type: string
+          required:
+            - to
+            - data
+            - value
+            - gasLimit
+          description: "Deprecated: Use transactions array instead. Single transaction
+            object for backwards compatibility."
+        transactions:
+          type: array
+          items:
+            type: object
+            properties:
+              to:
+                type: string
+              data:
+                type: string
+              value:
+                type: string
+              gasLimit:
+                type: string
+              description:
+                type: string
+              chainId:
+                type: integer
+              chainType:
+                type: string
+              chainSlug:
+                type: string
+              transactionDelay:
+                type: integer
+            required:
+              - to
+              - data
+              - value
+          description: Array of transactions to execute. May include USDC approval
+            transaction if initial purchase is requested.
+        metadata:
+          type: object
+          properties:
+            tokenUri:
+              type: string
+            tokenId:
+              type: string
+            name:
+              type: string
+            symbol:
+              type: string
+            slug:
+              type: string
+            token_layer_id:
+              type: string
+              nullable: true
+              description: Token Layer ID (calculated hash)
+              example: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+            description:
+              type: string
+            hubUrl:
+              type: string
+              format: uri
+              description: Direct URL to the token hub page
+              example: https://app.tokenlayer.network/token/my-cool-token
+            addresses:
+              type: object
+              properties:
+                evm:
+                  type: string
+                solana:
+                  type: string
+              required:
+                - evm
+                - solana
+          required:
+            - tokenUri
+            - tokenId
+            - name
+            - symbol
+            - slug
+            - description
+            - hubUrl
+            - addresses
+      required:
+        - actionType
+        - name
+        - success
+      title: Create Token Response
+    GetTokensV2InfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokensV2
+        hashtags:
+          type: array
+          items:
+            type: string
+          description: Filter tokens by hashtags (must match ALL hashtags provided - AND
+            logic)
+          example:
+            - defi
+            - ethereum
+        keyword:
+          type: string
+          description: Search keyword to filter by token name, symbol, or description
+            (case-insensitive)
+          example: bitcoin
+        chains:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChainSlug"
+          description: Filter tokens by chain slugs (returns tokens available on any of
+            the specified chains)
+          example:
+            - base
+            - solana
+            - ethereum
+        builder_code:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Filter tokens by builder address (case-insensitive). Returns only
+            tokens deployed by this builder.
+          example: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+        order_by:
+          type: string
+          enum:
+            - volume_1m
+            - volume_5m
+            - volume_1h
+            - volume_24h
+            - market_cap
+            - price_change_24h
+            - trx
+            - holders
+            - created_at
+          default: created_at
+          description: Field to order results by
+          example: volume_24h
+        order_direction:
+          type: string
+          enum:
+            - ASC
+            - DESC
+          default: DESC
+          description: Sort direction
+          example: DESC
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+          description: Maximum number of tokens to return
+          example: 20
+        offset:
+          type: integer
+          minimum: 0
+          default: 0
+          description: Number of tokens to skip for pagination
+          example: 0
+        verified_only:
+          type: boolean
+          default: false
+          description: Only return tokens with token_layer_id (verified)
+          example: false
+      required:
+        - type
+      description: Fetch tokens list with trading metrics
+      title: Get Tokens V2
+    GetTokensV2InfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokensV2
+        success:
+          type: boolean
+          enum:
+            - true
+        tokens:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenV2"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+      required:
+        - type
+        - success
+        - tokens
+        - pagination
+      title: Get Tokens V2 Response
+    RegisterAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - register
+        method:
+          type: string
+          enum:
+            - web3
+          description: Identity registration method
+          example: web3
+        message:
+          type: string
+          minLength: 1
+          description: "Signed message for Web3 bootstrap. Must include a 13-digit ms
+            timestamp (e.g. 'timestamp: 1737600000000') matching nonce."
+          example: "TokenLayer register\\naddress:
+            0xafe140dbfe00606990d913c04efd318701c99d17\\ntimestamp:
+            1737600000000"
+        signature:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{130}$
+          description: Signature for register message. message timestamp (ms) must equal
+            nonce and be within expiresAfter window.
+          example: 0xaabb...
+      required:
+        - type
+        - method
+        - message
+        - signature
+      description: Register a new wallet address with Token Layer
+      title: Register
+    CreateTokenAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - createToken
+        name:
+          type: string
+          minLength: 1
+          description: Token name
+          example: My Cool Token
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 10
+          description: Token symbol (ticker)
+          example: MCT
+        description:
+          type: string
+          minLength: 1
+          description: Token description
+          example: A revolutionary new token
+        image:
+          type: string
+          minLength: 1
+          description: Token logo image - can be either a URL or base64-encoded image data
+            (data:image/...)
+          example: https://example.com/logo.png or
+            data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+        banner:
+          type: string
+          minLength: 1
+          description: Banner image - can be either a URL or base64-encoded image data
+            (data:image/...)
+          example: https://example.com/banner.png or
+            data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+        video:
+          type: string
+          minLength: 1
+          description: Promotional video - can be either a URL or base64-encoded video
+            data (data:video/...)
+          example: https://example.com/promo.mp4 or
+            data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAACKBtZGF0AAAC
+        links:
+          type: object
+          properties:
+            website:
+              type: string
+              format: uri
+              description: Project website URL
+              example: https://example.com
+            twitter:
+              type: string
+              format: uri
+              description: Twitter/X profile URL
+              example: https://twitter.com/example
+            youtube:
+              type: string
+              format: uri
+              description: YouTube channel URL
+              example: https://youtube.com/@example
+            discord:
+              type: string
+              format: uri
+              description: Discord server invite URL
+              example: https://discord.gg/example
+            telegram:
+              type: string
+              format: uri
+              description: Telegram group/channel URL
+              example: https://t.me/example
+          description: Optional social media and website links
+        chainSlug:
+          $ref: "#/components/schemas/ChainSlug"
+        destinationChains:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChainSlug"
+          description: Optional array of destination chain slugs for cross-chain token
+            deployment and migration endpoints. Defaults to [base-sepolia,
+            bnb-testnet, solana-devnet]. The initial chain will be automatically
+            excluded from migration endpoints.
+          example:
+            - base-sepolia
+            - bnb-testnet
+            - solana-devnet
+        poolType:
+          type: string
+          enum:
+            - meme
+            - startup-preseed
+            - test
+          description: 'Type of token pool. Defaults to "meme". Maps to: meme=7,
+            startup-preseed=8'
+          example: meme
+        userAddress:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: User wallet address (optional - if not provided, will use user's
+            Privy wallet from user_wallets table)
+          example: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+        builder:
+          $ref: "#/components/schemas/Builder"
+        token_referral:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Token referral address for attribution (optional - defaults to zero
+            address). Used to attribute referral fees to a specific address.
+          example: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+        tags:
+          type: array
+          items:
+            type: string
+          description: Optional hashtags/tags for the token
+          example:
+            - defi
+            - meme
+        amountIn:
+          type: number
+          minimum: 0
+          description: Optional USD amount to spend on initial token purchase (in USD).
+            Use 0 or omit to skip initial purchase.
+          example: 10
+        tokensOut:
+          type: number
+          minimum: 0
+          description: Optional number of tokens to purchase initially. Use 0 or omit to
+            skip initial purchase. If both amountIn and tokensOut are provided,
+            tokensOut takes priority.
+          example: 1000
+        maxAmountIn:
+          type: number
+          minimum: 0
+          description: Maximum USD amount willing to spend when tokensOut is specified.
+            This value comes from the Quoter contract quote and includes
+            slippage protection. Required when tokensOut is provided.
+          example: 15.5
+      required:
+        - type
+        - name
+        - symbol
+        - description
+        - image
+        - chainSlug
+      description: Create a new token on Token Layer
+      title: Create Token
+    ChainSlug:
+      type: string
+      enum:
+        - solana
+        - solana-devnet
+        - arbitrum
+        - base
+        - base-sepolia
+        - avalanche
+        - op-bnb
+        - bnb
+        - bnb-testnet
+        - ethereum
+        - monad
+        - unichain
+        - unichain-testnet
+        - abstract
+        - polygon
+        - zksync
+        - zksync-testnet
+      description: "Blockchain identifier. Supported chains: solana, solana-devnet,
+        arbitrum, base, base-sepolia, avalanche, op-bnb, bnb, bnb-testnet,
+        ethereum, monad, unichain, unichain-testnet, abstract, polygon, zksync,
+        zksync-testnet"
+      example: base-sepolia
+    TokenV2:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        symbol:
+          type: string
+        slug:
+          type: string
+        logo:
+          type: string
+          nullable: true
+          format: uri
+        banner_url:
+          type: string
+          nullable: true
+          format: uri
+        video_url:
+          type: string
+          nullable: true
+          format: uri
+        description:
+          type: string
+          nullable: true
+        token_layer_id:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        holders_count:
+          type: integer
+          nullable: true
+          minimum: 0
+        market_cap:
+          type: number
+          nullable: true
+        price:
+          type: number
+          nullable: true
+        volume_1m:
+          type: number
+          nullable: true
+        volume_5m:
+          type: number
+          nullable: true
+        volume_1h:
+          type: number
+          nullable: true
+        volume_24h:
+          type: number
+          nullable: true
+        price_change_24h:
+          type: number
+          nullable: true
+        price_change_24h_percent:
+          type: number
+          nullable: true
+        trx:
+          type: integer
+          nullable: true
+          minimum: 0
+        token_addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenAddress"
+      required:
+        - id
+        - name
+        - symbol
+        - slug
+        - logo
+        - banner_url
+        - video_url
+        - description
+        - token_layer_id
+        - created_at
+        - holders_count
+        - market_cap
+        - price
+        - volume_1m
+        - volume_5m
+        - volume_1h
+        - volume_24h
+        - price_change_24h
+        - price_change_24h_percent
+        - trx
+        - token_addresses
+      description: Token with volume and trading metrics
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+        offset:
+          type: integer
+          minimum: 0
+        total_returned:
+          type: integer
+          minimum: 0
+        has_more:
+          type: boolean
+      required:
+        - limit
+        - offset
+        - total_returned
+        - has_more
+      description: Pagination information
+    Builder:
+      type: object
+      properties:
+        code:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Builder address for attribution
+          example: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+        fee:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          description: Builder fee in basis points (bps). 1 bps = 0.01%. Max 10000 (100%).
+          example: 50
+      required:
+        - code
+        - fee
+      description: Builder attribution information (optional). Includes address and
+        fee in bps.
+    TokenAddress:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        token_id:
+          type: string
+          format: uuid
+        address:
+          type: string
+        address_display:
+          type: string
+          nullable: true
+        address_type:
+          type: string
+          enum:
+            - evm
+            - sol
+        chain:
+          type: string
+        platform_name:
+          type: string
+        is_registered:
+          type: boolean
+        dex_name:
+          type: string
+          nullable: true
+        dex_address:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - token_id
+        - address
+        - address_display
+        - address_type
+        - chain
+        - platform_name
+        - is_registered
+        - dex_name
+        - dex_address
+        - created_at
+      description: Token address on a specific blockchain

@@ -1,0 +1,17 @@
+{
+  "authMode": "wallet",
+  "execute": false,
+  "rpcByChainSlug": {
+    "base": "https://mainnet.base.org"
+  },
+  "wallet": {
+    "privateKey": "0xYOUR_PRIVATE_KEY",
+    "signatureChainId": "0x1"
+  },
+  "jwt": {
+    "token": ""
+  },
+  "apiKey": {
+    "token": ""
+  }
+}

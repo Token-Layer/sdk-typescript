@@ -1,0 +1,45 @@
+{
+  "name": "@token-layer/sdk-typescript",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Token Layer /token-layer endpoint",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "npm run generate:openapi-types && tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "example:create-token": "npm run build && tsx examples/create-token.ts",
+    "example:create-token:builder-code": "npm run build && tsx examples/create-token-builder-code.ts",
+    "example:get-tokens-v2": "npm run build && tsx examples/get-tokens-v2.ts",
+    "example:get-tokens-v2:builder-code": "npm run build && tsx examples/get-tokens-v2-builder-code.ts",
+    "generate:openapi-types": "npm run generate:token-layer-openapi && openapi-typescript src/generated/token-layer-openapi.yaml -o src/generated/openapi.ts",
+    "generate:token-layer-openapi": "node scripts/extract-token-layer-openapi.mjs"
+  },
+  "keywords": [
+    "token-layer",
+    "sdk",
+    "typescript",
+    "viem",
+    "supabase"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "viem": "^2.41.2"
+  },
+  "devDependencies": {
+    "dotenv": "^17.3.1",
+    "openapi-typescript": "^7.13.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "yaml": "^2.8.1"
+  }
+}
