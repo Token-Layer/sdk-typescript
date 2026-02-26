@@ -12,25 +12,57 @@ import {
   signRegisterRequest,
 } from "./eip712.js";
 import type {
+  ClaimRewardsParams,
+  ClaimRewardsResponse,
+  CheckTokenOwnershipInfoResponse,
+  CheckTokenOwnershipParams,
+  CreateReferralCodeParams,
+  CreateReferralCodeResponse,
   CreateTokenResponse,
   CreateTokenResult,
   CreateTokenOptions,
   CreateTokenTransaction,
   ExecutedTransaction,
   CreateTokenParams,
+  EnterReferralCodeParams,
+  EnterReferralCodeResponse,
+  GetLeaderboardInfoResponse,
+  GetLeaderboardParams,
+  GetPoolDataInfoResponse,
+  GetPoolDataParams,
   RegisterParams,
   RegisterResponse,
-  TokenLayerAuth,
-  TokenLayerClientOptions,
-  TokenLayerErrorResponse,
-  CreateTokenActionDraft,
-  BuilderInput,
+  GetUserBalanceInfoResponse,
+  GetUserBalanceParams,
+  GetUserFeeHistoryInfoResponse,
+  GetUserFeeHistoryParams,
+  GetUserFeesInfoResponse,
+  GetUserFeesParams,
+  GetUserPortfolioInfoResponse,
+  GetUserPortfolioParams,
   GetTokensV2InfoResponse,
   GetTokensV2Params,
+  InfoErrorResponse,
+  MeInfoResponse,
+  MeParams,
+  MintUsdParams,
+  MintUsdResponse,
   QuoteTokenInfoResponse,
   QuoteTokenParams,
-  InfoErrorResponse,
+  SearchTokenInfoResponse,
+  SearchTokenParams,
+  SendTransactionParams,
+  SendTransactionResponse,
+  TokenLayerAuth,
+  TokenLayerClientOptions,
   TokenLayerDefaults,
+  TokenLayerErrorResponse,
+  TradeTokenParams,
+  TradeTokenResponse,
+  TransferTokenParams,
+  TransferTokenResponse,
+  CreateTokenActionDraft,
+  BuilderInput,
 } from "./types.js";
 
 export class TokenLayerApiError extends Error {
@@ -94,6 +126,34 @@ export class TokenLayerClient {
       options?: CreateTokenOptions,
       authOverride?: TokenLayerAuth,
     ) => Promise<CreateTokenResult>;
+    tradeToken: (
+      params: TradeTokenParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<TradeTokenResponse>;
+    sendTransaction: (
+      params: SendTransactionParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<SendTransactionResponse>;
+    transferToken: (
+      params: TransferTokenParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<TransferTokenResponse>;
+    claimRewards: (
+      params: ClaimRewardsParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<ClaimRewardsResponse>;
+    createReferralCode: (
+      params: CreateReferralCodeParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<CreateReferralCodeResponse>;
+    enterReferralCode: (
+      params: EnterReferralCodeParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<EnterReferralCodeResponse>;
+    mintUsd: (
+      params: MintUsdParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<MintUsdResponse>;
   };
   public readonly prepare: {
     createToken: (action: CreateTokenActionDraft) => CreateTokenActionDraft;
@@ -122,14 +182,43 @@ export class TokenLayerClient {
         options?: CreateTokenOptions,
         authOverride?: TokenLayerAuth,
       ) => this.createToken(params, options, authOverride),
+      tradeToken: (
+        params: TradeTokenParams,
+        authOverride?: TokenLayerAuth,
+      ) => this.tradeToken(params, authOverride),
+      sendTransaction: (
+        params: SendTransactionParams,
+        authOverride?: TokenLayerAuth,
+      ) => this.sendTransaction(params, authOverride),
+      transferToken: (
+        params: TransferTokenParams,
+        authOverride?: TokenLayerAuth,
+      ) => this.transferToken(params, authOverride),
+      claimRewards: (
+        params: ClaimRewardsParams,
+        authOverride?: TokenLayerAuth,
+      ) => this.claimRewards(params, authOverride),
+      createReferralCode: (
+        params: CreateReferralCodeParams,
+        authOverride?: TokenLayerAuth,
+      ) => this.createReferralCode(params, authOverride),
+      enterReferralCode: (
+        params: EnterReferralCodeParams,
+        authOverride?: TokenLayerAuth,
+      ) => this.enterReferralCode(params, authOverride),
+      mintUsd: (
+        params: MintUsdParams,
+        authOverride?: TokenLayerAuth,
+      ) => this.mintUsd(params, authOverride),
     };
     this.info = {
       getTokensV2: async (
         params: GetTokensV2Params,
       ): Promise<GetTokensV2InfoResponse> => {
-        const payload = await this.postAnonymous<GetTokensV2InfoResponse>(
+        const payload = await this.postInfo<GetTokensV2InfoResponse>(
           this.infoUrl,
           this.withDefaultsForGetTokensV2({ type: "getTokensV2", ...params }),
+          this.resolveOptionalInfoBearer(undefined, "getTokensV2"),
         );
         if (payload.type !== "getTokensV2") {
           throw new Error(
@@ -141,7 +230,7 @@ export class TokenLayerClient {
       quoteToken: async (
         params: QuoteTokenParams,
       ): Promise<QuoteTokenInfoResponse> => {
-        const payload = await this.postAnonymous<QuoteTokenInfoResponse>(
+        const payload = await this.postInfo<QuoteTokenInfoResponse>(
           this.infoUrl,
           { type: "quoteToken", ...params },
         );
@@ -152,11 +241,128 @@ export class TokenLayerClient {
         }
         return payload;
       },
+      me: async (
+        params: MeParams = {},
+        authOverride?: TokenLayerAuth,
+      ): Promise<MeInfoResponse> =>
+        await this.postInfoAuth<MeInfoResponse>(
+          { type: "me", ...params },
+          "me",
+          authOverride,
+        ),
+      getPoolData: async (
+        params: GetPoolDataParams,
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetPoolDataInfoResponse> =>
+        await this.postInfo<GetPoolDataInfoResponse>(
+          this.infoUrl,
+          { type: "getPoolData", ...params },
+          this.resolveOptionalInfoBearer(authOverride, "getPoolData"),
+        ),
+      getUserBalance: async (
+        params: GetUserBalanceParams,
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetUserBalanceInfoResponse> =>
+        await this.postInfoAuth<GetUserBalanceInfoResponse>(
+          { type: "getUserBalance", ...params },
+          "getUserBalance",
+          authOverride,
+        ),
+      searchToken: async (
+        params: SearchTokenParams,
+        authOverride?: TokenLayerAuth,
+      ): Promise<SearchTokenInfoResponse> =>
+        await this.postInfo<SearchTokenInfoResponse>(
+          this.infoUrl,
+          { type: "searchToken", ...params },
+          this.resolveOptionalInfoBearer(authOverride, "searchToken"),
+        ),
+      checkTokenOwnership: async (
+        params: CheckTokenOwnershipParams,
+        authOverride?: TokenLayerAuth,
+      ): Promise<CheckTokenOwnershipInfoResponse> =>
+        await this.postInfo<CheckTokenOwnershipInfoResponse>(
+          this.infoUrl,
+          { type: "checkTokenOwnership", ...params },
+          this.resolveOptionalInfoBearer(authOverride, "checkTokenOwnership"),
+        ),
+      getUserFees: async (
+        params: GetUserFeesParams = {},
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetUserFeesInfoResponse> =>
+        await this.postInfoAuth<GetUserFeesInfoResponse>(
+          { type: "getUserFees", ...params },
+          "getUserFees",
+          authOverride,
+        ),
+      getUserFeeHistory: async (
+        params: GetUserFeeHistoryParams = {},
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetUserFeeHistoryInfoResponse> =>
+        await this.postInfoAuth<GetUserFeeHistoryInfoResponse>(
+          { type: "getUserFeeHistory", ...params },
+          "getUserFeeHistory",
+          authOverride,
+        ),
+      getLeaderboard: async (
+        params: GetLeaderboardParams = {},
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetLeaderboardInfoResponse> =>
+        await this.postInfo<GetLeaderboardInfoResponse>(
+          this.infoUrl,
+          { type: "getLeaderboard", ...params },
+          this.resolveOptionalInfoBearer(authOverride, "getLeaderboard"),
+        ),
+      getUserPortfolio: async (
+        params: GetUserPortfolioParams = {},
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetUserPortfolioInfoResponse> =>
+        await this.postInfoAuth<GetUserPortfolioInfoResponse>(
+          { type: "getUserPortfolio", ...params },
+          "getUserPortfolio",
+          authOverride,
+        ),
     };
   }
   public readonly info: {
     getTokensV2: (params: GetTokensV2Params) => Promise<GetTokensV2InfoResponse>;
     quoteToken: (params: QuoteTokenParams) => Promise<QuoteTokenInfoResponse>;
+    me: (
+      params?: MeParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<MeInfoResponse>;
+    getPoolData: (
+      params: GetPoolDataParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetPoolDataInfoResponse>;
+    getUserBalance: (
+      params: GetUserBalanceParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetUserBalanceInfoResponse>;
+    searchToken: (
+      params: SearchTokenParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<SearchTokenInfoResponse>;
+    checkTokenOwnership: (
+      params: CheckTokenOwnershipParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<CheckTokenOwnershipInfoResponse>;
+    getUserFees: (
+      params?: GetUserFeesParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetUserFeesInfoResponse>;
+    getUserFeeHistory: (
+      params?: GetUserFeeHistoryParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetUserFeeHistoryInfoResponse>;
+    getLeaderboard: (
+      params?: GetLeaderboardParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetLeaderboardInfoResponse>;
+    getUserPortfolio: (
+      params?: GetUserPortfolioParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetUserPortfolioInfoResponse>;
   };
 
   asWallet(
@@ -220,6 +426,40 @@ export class TokenLayerClient {
     }
 
     return auth;
+  }
+
+  private resolveBearerForStandardAuth(
+    authOverride: TokenLayerAuth | undefined,
+    operationName: string,
+  ): string {
+    const auth = this.resolveAuth(authOverride);
+    if (auth.type === "wallet") {
+      throw new Error(
+        `${operationName} requires JWT or API key auth. Wallet-signature auth currently supports register/createToken only.`,
+      );
+    }
+    return auth.token;
+  }
+
+  private resolveOptionalInfoBearer(
+    authOverride: TokenLayerAuth | undefined,
+    operationName: string,
+  ): string | undefined {
+    const auth = authOverride || this.auth;
+    if (!auth) {
+      return undefined;
+    }
+    if (auth.type === "wallet") {
+      throw new Error(
+        `${operationName} info request does not support wallet auth. Use JWT/API key auth or no auth.`,
+      );
+    }
+    if (isInvalidBearerToken(auth.token)) {
+      throw new Error(
+        `Invalid ${auth.type} token. Provide a non-empty token value.`,
+      );
+    }
+    return auth.token;
   }
 
   async register(
@@ -323,6 +563,160 @@ export class TokenLayerClient {
       ...payload,
       executions,
     };
+  }
+
+  async tradeToken(
+    params: TradeTokenParams,
+    authOverride?: TokenLayerAuth,
+  ): Promise<TradeTokenResponse> {
+    const payload = await this.postAuthenticatedAction<TradeTokenResponse>(
+      "tradeToken",
+      params.action,
+      params.source,
+      params.expiresAfter,
+      authOverride,
+    );
+    if (payload.actionType !== "tradeToken") {
+      throw new Error(
+        `Unexpected actionType for tradeToken: ${String((payload as { actionType?: string }).actionType)}`,
+      );
+    }
+    return payload;
+  }
+
+  async sendTransaction(
+    params: SendTransactionParams,
+    authOverride?: TokenLayerAuth,
+  ): Promise<SendTransactionResponse> {
+    const payload = await this.postAuthenticatedAction<SendTransactionResponse>(
+      "sendTransaction",
+      params.action,
+      params.source,
+      params.expiresAfter,
+      authOverride,
+    );
+    if (payload.actionType !== "sendTransaction") {
+      throw new Error(
+        `Unexpected actionType for sendTransaction: ${String((payload as { actionType?: string }).actionType)}`,
+      );
+    }
+    return payload;
+  }
+
+  async transferToken(
+    params: TransferTokenParams,
+    authOverride?: TokenLayerAuth,
+  ): Promise<TransferTokenResponse> {
+    const payload = await this.postAuthenticatedAction<TransferTokenResponse>(
+      "transferToken",
+      params.action,
+      params.source,
+      params.expiresAfter,
+      authOverride,
+    );
+    if (payload.actionType !== "transferToken") {
+      throw new Error(
+        `Unexpected actionType for transferToken: ${String((payload as { actionType?: string }).actionType)}`,
+      );
+    }
+    return payload;
+  }
+
+  async claimRewards(
+    params: ClaimRewardsParams,
+    authOverride?: TokenLayerAuth,
+  ): Promise<ClaimRewardsResponse> {
+    const payload = await this.postAuthenticatedAction<ClaimRewardsResponse>(
+      "claimRewards",
+      params.action,
+      params.source,
+      params.expiresAfter,
+      authOverride,
+    );
+    if (payload.actionType !== "claimRewards") {
+      throw new Error(
+        `Unexpected actionType for claimRewards: ${String((payload as { actionType?: string }).actionType)}`,
+      );
+    }
+    return payload;
+  }
+
+  async createReferralCode(
+    params: CreateReferralCodeParams,
+    authOverride?: TokenLayerAuth,
+  ): Promise<CreateReferralCodeResponse> {
+    const payload = await this.postAuthenticatedAction<CreateReferralCodeResponse>(
+      "createReferralCode",
+      params.action,
+      params.source,
+      params.expiresAfter,
+      authOverride,
+    );
+    if (payload.actionType !== "createReferralCode") {
+      throw new Error(
+        `Unexpected actionType for createReferralCode: ${String((payload as { actionType?: string }).actionType)}`,
+      );
+    }
+    return payload;
+  }
+
+  async enterReferralCode(
+    params: EnterReferralCodeParams,
+    authOverride?: TokenLayerAuth,
+  ): Promise<EnterReferralCodeResponse> {
+    const payload = await this.postAuthenticatedAction<EnterReferralCodeResponse>(
+      "enterReferralCode",
+      params.action,
+      params.source,
+      params.expiresAfter,
+      authOverride,
+    );
+    if (payload.actionType !== "enterReferralCode") {
+      throw new Error(
+        `Unexpected actionType for enterReferralCode: ${String((payload as { actionType?: string }).actionType)}`,
+      );
+    }
+    return payload;
+  }
+
+  async mintUsd(
+    params: MintUsdParams,
+    authOverride?: TokenLayerAuth,
+  ): Promise<MintUsdResponse> {
+    const payload = await this.postAuthenticatedAction<MintUsdResponse>(
+      "mintUsd",
+      params.action,
+      params.source,
+      params.expiresAfter,
+      authOverride,
+    );
+    if (payload.actionType !== "mintUsd") {
+      throw new Error(
+        `Unexpected actionType for mintUsd: ${String((payload as { actionType?: string }).actionType)}`,
+      );
+    }
+    return payload;
+  }
+
+  private async postAuthenticatedAction<TResponse>(
+    actionType: string,
+    actionPayload: Record<string, unknown>,
+    source?: "Mainnet" | "Testnet",
+    expiresAfter?: number,
+    authOverride?: TokenLayerAuth,
+  ): Promise<TResponse> {
+    const bearer = this.resolveBearerForStandardAuth(authOverride, actionType);
+    return await this.post<TResponse>(
+      {
+        source: source ?? this.source,
+        expiresAfter: expiresAfter ?? this.expiresAfterMs,
+        action: {
+          ...actionPayload,
+          type: actionType,
+        },
+      },
+      bearer,
+    );
   }
 
   private getResponseTransactions(
@@ -484,8 +878,21 @@ export class TokenLayerClient {
     );
   }
 
-  private async postAnonymous<T>(url: string, body: unknown): Promise<T> {
-    return this.postToUrl<T, InfoErrorResponse>(url, body);
+  private async postInfo<T>(
+    url: string,
+    body: unknown,
+    bearer?: string,
+  ): Promise<T> {
+    return this.postToUrl<T, InfoErrorResponse>(url, body, bearer);
+  }
+
+  private async postInfoAuth<T>(
+    body: unknown,
+    operationName: string,
+    authOverride?: TokenLayerAuth,
+  ): Promise<T> {
+    const bearer = this.resolveBearerForStandardAuth(authOverride, operationName);
+    return this.postInfo<T>(this.infoUrl, body, bearer);
   }
 
   private async postToUrl<T, E extends { error?: string; code?: string; details?: unknown }>(

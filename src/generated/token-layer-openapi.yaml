@@ -39,6 +39,13 @@ paths:
             Supported actions:
             - register
             - createToken
+            - tradeToken
+            - sendTransaction
+            - transferToken
+            - claimRewards
+            - createReferralCode
+            - enterReferralCode
+            - mintUsd
 
             Authentication modes:
             - JWT bearer
@@ -102,6 +109,16 @@ paths:
 
             Supported request types:
             - getTokensV2
+            - quoteToken
+            - me
+            - getPoolData
+            - getUserBalance
+            - searchToken
+            - checkTokenOwnership
+            - getUserFees
+            - getUserFeeHistory
+            - getLeaderboard
+            - getUserPortfolio
       operationId: getInfo
       security:
         - BearerAuth: []
@@ -136,15 +153,108 @@ components:
       anyOf:
         - $ref: "#/components/schemas/RegisterTokenLayerRequest"
         - $ref: "#/components/schemas/CreateTokenLayerRequest"
+        - $ref: "#/components/schemas/TradeTokenLayerRequest"
+        - $ref: "#/components/schemas/SendTransactionLayerRequest"
+        - $ref: "#/components/schemas/TransferTokenLayerRequest"
+        - $ref: "#/components/schemas/ClaimRewardsLayerRequest"
+        - $ref: "#/components/schemas/CreateReferralCodeLayerRequest"
+        - $ref: "#/components/schemas/EnterReferralCodeLayerRequest"
+        - $ref: "#/components/schemas/MintUsdLayerRequest"
     TokenLayerResponse:
       oneOf:
         - $ref: "#/components/schemas/RegisterActionResponse"
         - $ref: "#/components/schemas/CreateTokenActionResponse"
-      discriminator:
-        propertyName: actionType
-        mapping:
-          register: "#/components/schemas/RegisterActionResponse"
-          createToken: "#/components/schemas/CreateTokenActionResponse"
+        - type: object
+          properties:
+            actionType:
+              type: string
+              enum:
+                - tradeToken
+            name:
+              type: string
+              enum:
+                - tradeToken
+          required:
+            - actionType
+            - name
+        - type: object
+          properties:
+            actionType:
+              type: string
+              enum:
+                - sendTransaction
+            name:
+              type: string
+              enum:
+                - sendTransaction
+          required:
+            - actionType
+            - name
+        - type: object
+          properties:
+            actionType:
+              type: string
+              enum:
+                - transferToken
+            name:
+              type: string
+              enum:
+                - transferToken
+          required:
+            - actionType
+            - name
+        - type: object
+          properties:
+            actionType:
+              type: string
+              enum:
+                - claimRewards
+            name:
+              type: string
+              enum:
+                - claimRewards
+          required:
+            - actionType
+            - name
+        - type: object
+          properties:
+            actionType:
+              type: string
+              enum:
+                - createReferralCode
+            name:
+              type: string
+              enum:
+                - createReferralCode
+          required:
+            - actionType
+            - name
+        - type: object
+          properties:
+            actionType:
+              type: string
+              enum:
+                - enterReferralCode
+            name:
+              type: string
+              enum:
+                - enterReferralCode
+          required:
+            - actionType
+            - name
+        - type: object
+          properties:
+            actionType:
+              type: string
+              enum:
+                - mintUsd
+            name:
+              type: string
+              enum:
+                - mintUsd
+          required:
+            - actionType
+            - name
     TokenLayerError:
       type: object
       properties:
@@ -163,17 +273,106 @@ components:
     InfoRequest:
       oneOf:
         - $ref: "#/components/schemas/GetTokensV2InfoRequest"
+        - $ref: "#/components/schemas/QuoteTokenInfoRequest"
+        - $ref: "#/components/schemas/MeInfoRequest"
+        - $ref: "#/components/schemas/GetPoolDataInfoRequest"
+        - $ref: "#/components/schemas/GetUserBalanceInfoRequest"
+        - $ref: "#/components/schemas/SearchTokenInfoRequest"
+        - $ref: "#/components/schemas/CheckTokenOwnershipInfoRequest"
+        - $ref: "#/components/schemas/GetUserFeesInfoRequest"
+        - $ref: "#/components/schemas/GetUserFeeHistoryInfoRequest"
+        - $ref: "#/components/schemas/GetLeaderboardInfoRequest"
+        - $ref: "#/components/schemas/GetUserPortfolioInfoRequest"
       discriminator:
         propertyName: type
         mapping:
           getTokensV2: "#/components/schemas/GetTokensV2InfoRequest"
+          quoteToken: "#/components/schemas/QuoteTokenInfoRequest"
+          me: "#/components/schemas/MeInfoRequest"
+          getPoolData: "#/components/schemas/GetPoolDataInfoRequest"
+          getUserBalance: "#/components/schemas/GetUserBalanceInfoRequest"
+          searchToken: "#/components/schemas/SearchTokenInfoRequest"
+          checkTokenOwnership: "#/components/schemas/CheckTokenOwnershipInfoRequest"
+          getUserFees: "#/components/schemas/GetUserFeesInfoRequest"
+          getUserFeeHistory: "#/components/schemas/GetUserFeeHistoryInfoRequest"
+          getLeaderboard: "#/components/schemas/GetLeaderboardInfoRequest"
+          getUserPortfolio: "#/components/schemas/GetUserPortfolioInfoRequest"
     InfoResponse:
       oneOf:
         - $ref: "#/components/schemas/GetTokensV2InfoResponse"
-      discriminator:
-        propertyName: type
-        mapping:
-          getTokensV2: "#/components/schemas/GetTokensV2InfoResponse"
+        - $ref: "#/components/schemas/QuoteTokenInfoResponse"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - me
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - getPoolData
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - getUserBalance
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - searchToken
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - checkTokenOwnership
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - getUserFees
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - getUserFeeHistory
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - getLeaderboard
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - getUserPortfolio
+          required:
+            - type
     InfoError:
       type: object
       properties:
@@ -271,6 +470,279 @@ components:
         - action
       description: Envelope for createToken action
       title: Create Token
+    TradeTokenLayerRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          enum:
+            - Mainnet
+            - Testnet
+          description: Environment indicator included in typed-data payload
+        nonce:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Nonce timestamp in milliseconds. Required for wallet-signature
+            authentication.
+          example: 1737600000000
+        expiresAfter:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Expiration window in milliseconds
+          example: 300000
+        signature:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{130}$
+          description: Required when using wallet signature auth (Bearer wallet address)
+          example: 0x5f2a...
+        signatureChainId:
+          type: string
+          pattern: ^0x[0-9a-fA-F]+$
+          description: Required when using wallet signature auth. EIP-712 domain chainId
+            in hex.
+          example: "0x1"
+        action:
+          $ref: "#/components/schemas/TradeTokenAction"
+      required:
+        - source
+        - expiresAfter
+        - action
+    SendTransactionLayerRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          enum:
+            - Mainnet
+            - Testnet
+          description: Environment indicator included in typed-data payload
+        nonce:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Nonce timestamp in milliseconds. Required for wallet-signature
+            authentication.
+          example: 1737600000000
+        expiresAfter:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Expiration window in milliseconds
+          example: 300000
+        signature:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{130}$
+          description: Required when using wallet signature auth (Bearer wallet address)
+          example: 0x5f2a...
+        signatureChainId:
+          type: string
+          pattern: ^0x[0-9a-fA-F]+$
+          description: Required when using wallet signature auth. EIP-712 domain chainId
+            in hex.
+          example: "0x1"
+        action:
+          $ref: "#/components/schemas/SendTransactionAction"
+      required:
+        - source
+        - expiresAfter
+        - action
+    TransferTokenLayerRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          enum:
+            - Mainnet
+            - Testnet
+          description: Environment indicator included in typed-data payload
+        nonce:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Nonce timestamp in milliseconds. Required for wallet-signature
+            authentication.
+          example: 1737600000000
+        expiresAfter:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Expiration window in milliseconds
+          example: 300000
+        signature:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{130}$
+          description: Required when using wallet signature auth (Bearer wallet address)
+          example: 0x5f2a...
+        signatureChainId:
+          type: string
+          pattern: ^0x[0-9a-fA-F]+$
+          description: Required when using wallet signature auth. EIP-712 domain chainId
+            in hex.
+          example: "0x1"
+        action:
+          $ref: "#/components/schemas/TransferTokenAction"
+      required:
+        - source
+        - expiresAfter
+        - action
+    ClaimRewardsLayerRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          enum:
+            - Mainnet
+            - Testnet
+          description: Environment indicator included in typed-data payload
+        nonce:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Nonce timestamp in milliseconds. Required for wallet-signature
+            authentication.
+          example: 1737600000000
+        expiresAfter:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Expiration window in milliseconds
+          example: 300000
+        signature:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{130}$
+          description: Required when using wallet signature auth (Bearer wallet address)
+          example: 0x5f2a...
+        signatureChainId:
+          type: string
+          pattern: ^0x[0-9a-fA-F]+$
+          description: Required when using wallet signature auth. EIP-712 domain chainId
+            in hex.
+          example: "0x1"
+        action:
+          $ref: "#/components/schemas/ClaimRewardsAction"
+      required:
+        - source
+        - expiresAfter
+        - action
+    CreateReferralCodeLayerRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          enum:
+            - Mainnet
+            - Testnet
+          description: Environment indicator included in typed-data payload
+        nonce:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Nonce timestamp in milliseconds. Required for wallet-signature
+            authentication.
+          example: 1737600000000
+        expiresAfter:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Expiration window in milliseconds
+          example: 300000
+        signature:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{130}$
+          description: Required when using wallet signature auth (Bearer wallet address)
+          example: 0x5f2a...
+        signatureChainId:
+          type: string
+          pattern: ^0x[0-9a-fA-F]+$
+          description: Required when using wallet signature auth. EIP-712 domain chainId
+            in hex.
+          example: "0x1"
+        action:
+          $ref: "#/components/schemas/CreateReferralCodeAction"
+      required:
+        - source
+        - expiresAfter
+        - action
+    EnterReferralCodeLayerRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          enum:
+            - Mainnet
+            - Testnet
+          description: Environment indicator included in typed-data payload
+        nonce:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Nonce timestamp in milliseconds. Required for wallet-signature
+            authentication.
+          example: 1737600000000
+        expiresAfter:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Expiration window in milliseconds
+          example: 300000
+        signature:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{130}$
+          description: Required when using wallet signature auth (Bearer wallet address)
+          example: 0x5f2a...
+        signatureChainId:
+          type: string
+          pattern: ^0x[0-9a-fA-F]+$
+          description: Required when using wallet signature auth. EIP-712 domain chainId
+            in hex.
+          example: "0x1"
+        action:
+          $ref: "#/components/schemas/EnterReferralCodeAction"
+      required:
+        - source
+        - expiresAfter
+        - action
+    MintUsdLayerRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          enum:
+            - Mainnet
+            - Testnet
+          description: Environment indicator included in typed-data payload
+        nonce:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Nonce timestamp in milliseconds. Required for wallet-signature
+            authentication.
+          example: 1737600000000
+        expiresAfter:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Expiration window in milliseconds
+          example: 300000
+        signature:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{130}$
+          description: Required when using wallet signature auth (Bearer wallet address)
+          example: 0x5f2a...
+        signatureChainId:
+          type: string
+          pattern: ^0x[0-9a-fA-F]+$
+          description: Required when using wallet signature auth. EIP-712 domain chainId
+            in hex.
+          example: "0x1"
+        action:
+          $ref: "#/components/schemas/MintUsdAction"
+      required:
+        - source
+        - expiresAfter
+        - action
     RegisterActionResponse:
       type: object
       properties:
@@ -505,6 +977,218 @@ components:
         - type
       description: Fetch tokens list with trading metrics
       title: Get Tokens V2
+    QuoteTokenInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - quoteToken
+        tokenId:
+          type: string
+          format: uuid
+          description: Token UUID (optional for new pool quotes - use poolTypeId instead)
+          example: 550e8400-e29b-41d4-a716-446655440000
+        chainSlug:
+          $ref: "#/components/schemas/ChainSlug"
+        amount:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          default: 1
+          description: Amount to quote (interpretation depends on direction and inputToken)
+          example: 100
+        direction:
+          type: string
+          enum:
+            - buy
+            - sell
+          default: sell
+          description: Trade direction
+          example: buy
+        inputToken:
+          type: string
+          enum:
+            - token
+            - usdc
+          default: token
+          description: Whether amount represents tokens or USDC
+          example: usdc
+        poolType:
+          type: string
+          enum:
+            - meme
+            - startup-preseed
+            - test
+          description: Pool type for new pool quotes. Use this instead of tokenId for
+            tokens that don't exist yet. Defaults to "meme".
+          example: meme
+      required:
+        - type
+        - chainSlug
+      description: Get token price quote
+      title: Quote Token
+    MeInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - me
+        include_testnets:
+          type: boolean
+      required:
+        - type
+    GetPoolDataInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getPoolData
+        tokenId:
+          type: string
+          format: uuid
+      required:
+        - type
+        - tokenId
+    GetUserBalanceInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getUserBalance
+        token_id:
+          type: string
+          format: uuid
+        chain_id:
+          type: integer
+      required:
+        - type
+    SearchTokenInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - searchToken
+        input:
+          type: string
+          minLength: 1
+          description: Token UUID, contract address (0x...), token layer ID (bytes32),
+            symbol, or slug to search for
+          example: 550e8400-e29b-41d4-a716-446655440000
+      required:
+        - type
+        - input
+    CheckTokenOwnershipInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - checkTokenOwnership
+        token_id:
+          type: string
+          format: uuid
+        user_address:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+        user_id:
+          type: string
+          format: uuid
+      required:
+        - type
+        - token_id
+        - user_address
+    GetUserFeesInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getUserFees
+        user_id:
+          type: string
+          format: uuid
+        chains:
+          type: array
+          items:
+            type: string
+      required:
+        - type
+    GetUserFeeHistoryInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getUserFeeHistory
+        user_id:
+          type: string
+          format: uuid
+        fee_type:
+          type: string
+          enum:
+            - builder
+            - token_referral
+            - ip_holder
+            - protocol_referral
+            - protocol_referral_cashback
+        chains:
+          type: array
+          items:
+            type: string
+        limit:
+          type: number
+          minimum: 1
+          maximum: 100
+          default: 50
+        offset:
+          type: number
+          minimum: 0
+          default: 0
+      required:
+        - type
+    GetLeaderboardInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getLeaderboard
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 100
+        offset:
+          type: integer
+          minimum: 0
+          default: 0
+        network_mode:
+          type: string
+          enum:
+            - testnet
+            - mainnet
+            - both
+          default: both
+      required:
+        - type
+    GetUserPortfolioInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getUserPortfolio
+        chains:
+          type: array
+          items:
+            type: string
+      required:
+        - type
     GetTokensV2InfoResponse:
       type: object
       properties:
@@ -528,6 +1212,81 @@ components:
         - tokens
         - pagination
       title: Get Tokens V2 Response
+    QuoteTokenInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - quoteToken
+        success:
+          type: boolean
+          enum:
+            - true
+        data:
+          type: object
+          properties:
+            tokenId:
+              type: string
+              format: uuid
+            tokenSymbol:
+              type: string
+            tokenName:
+              type: string
+            chainSlug:
+              $ref: "#/components/schemas/ChainSlug"
+            direction:
+              type: string
+              enum:
+                - buy
+                - sell
+            inputToken:
+              type: string
+              enum:
+                - token
+                - usdc
+            inputAmount:
+              type: number
+            outputAmount:
+              type: number
+            inputTokenSymbol:
+              type: string
+            outputTokenSymbol:
+              type: string
+            protocol:
+              type: string
+              enum:
+                - RobinSwap
+                - UniswapV3
+            isGraduated:
+              type: boolean
+            initFee:
+              type: number
+              description: Initial deployment fee for new tokens (only present for
+                non-graduated tokens)
+              example: 5
+            timestamp:
+              type: string
+              format: date-time
+          required:
+            - tokenId
+            - tokenSymbol
+            - tokenName
+            - chainSlug
+            - direction
+            - inputToken
+            - inputAmount
+            - outputAmount
+            - inputTokenSymbol
+            - outputTokenSymbol
+            - protocol
+            - isGraduated
+            - timestamp
+      required:
+        - type
+        - success
+        - data
+      title: Quote Token Response
     RegisterAction:
       type: object
       properties:
@@ -709,6 +1468,221 @@ components:
         - chainSlug
       description: Create a new token on Token Layer
       title: Create Token
+    TradeTokenAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - tradeToken
+        tokenId:
+          type: string
+          format: uuid
+        userAddress:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: User wallet address (optional - if not provided, will use user's
+            Privy wallet from user_wallets table)
+          example: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+        builder:
+          $ref: "#/components/schemas/Builder"
+        token_referral:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Token referral address for attribution (optional - defaults to zero
+            address). Used to attribute referral fees to a specific address.
+          example: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+        chainSlug:
+          $ref: "#/components/schemas/ChainSlug"
+        direction:
+          type: string
+          enum:
+            - buy
+            - sell
+        buyAmountUSD:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+        buyAmountToken:
+          anyOf:
+            - type: number
+              minimum: 0
+              exclusiveMinimum: true
+            - type: string
+          description: Token amount to buy (number for regular amounts, string for exact
+            wei values at 100%)
+          example: 1000
+        sellAmountToken:
+          anyOf:
+            - type: number
+              minimum: 0
+              exclusiveMinimum: true
+            - type: string
+          description: Token amount to sell (number for regular amounts, string for exact
+            wei values at 100%)
+          example: 1000
+        sellAmountUSD:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+      required:
+        - type
+        - tokenId
+        - chainSlug
+        - direction
+    SendTransactionAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - sendTransaction
+        to:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Recipient address
+          example: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+        amount:
+          type: string
+          description: Amount in wei (as string to handle large numbers)
+          example: "1000000000000000000"
+        data:
+          type: string
+          pattern: ^0x[a-fA-F0-9]*$
+          description: Optional transaction data (hex string)
+          example: 0x
+        chainSlug:
+          $ref: "#/components/schemas/ChainSlug"
+      required:
+        - type
+        - to
+        - amount
+        - chainSlug
+    TransferTokenAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - transferToken
+        token_id:
+          type: string
+          format: uuid
+        recipient_address:
+          type: string
+          description: Recipient address (supports both EVM and Solana formats)
+          example: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+        amount:
+          type: string
+          description: Human-readable amount (e.g., "100.5")
+          example: "100.5"
+        from_chain_slug:
+          allOf:
+            - $ref: "#/components/schemas/ChainSlug"
+            - description: Source chain slug
+        to_chain_slug:
+          allOf:
+            - $ref: "#/components/schemas/ChainSlug"
+            - description: Destination chain slug
+        wallet_address:
+          type: string
+          description: User wallet address (optional - will be fetched from user_wallets
+            if not provided, supports both EVM and Solana formats)
+      required:
+        - type
+        - token_id
+        - recipient_address
+        - amount
+        - from_chain_slug
+        - to_chain_slug
+    ClaimRewardsAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - claimRewards
+        currencyAddress:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+        chains:
+          type: array
+          items:
+            type: string
+      required:
+        - type
+    CreateReferralCodeAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - createReferralCode
+        code:
+          type: string
+          pattern: ^[a-zA-Z0-9]{4,20}$
+          description: Custom referral code (4-20 alphanumeric characters)
+          example: ALICE2025
+        network_mode:
+          type: string
+          enum:
+            - testnet
+            - mainnet
+            - both
+          default: mainnet
+          description: Network mode for this referral code
+          example: mainnet
+      required:
+        - type
+        - code
+    EnterReferralCodeAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - enterReferralCode
+        referral_code:
+          type: string
+          description: The referral code to enter
+          example: alice2025
+        network_mode:
+          type: string
+          enum:
+            - testnet
+            - mainnet
+            - both
+          default: mainnet
+          description: Network mode for this referral code
+          example: mainnet
+      required:
+        - type
+        - referral_code
+    MintUsdAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - mintUsd
+        chainSlug:
+          $ref: "#/components/schemas/ChainSlug"
+        amount:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          default: 100000
+          description: Amount of USD to mint (defaults to 100,000)
+          example: 100000
+        userAddress:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: User wallet address to mint tokens to
+          example: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+      required:
+        - type
+        - chainSlug
+        - userAddress
     ChainSlug:
       type: string
       enum:

@@ -20,6 +20,13 @@ export interface paths {
          *         Supported actions:
          *         - register
          *         - createToken
+         *         - tradeToken
+         *         - sendTransaction
+         *         - transferToken
+         *         - claimRewards
+         *         - createReferralCode
+         *         - enterReferralCode
+         *         - mintUsd
          *
          *         Authentication modes:
          *         - JWT bearer
@@ -56,6 +63,16 @@ export interface paths {
          *
          *         Supported request types:
          *         - getTokensV2
+         *         - quoteToken
+         *         - me
+         *         - getPoolData
+         *         - getUserBalance
+         *         - searchToken
+         *         - checkTokenOwnership
+         *         - getUserFees
+         *         - getUserFeeHistory
+         *         - getLeaderboard
+         *         - getUserPortfolio
          */
         post: operations["getInfo"];
         delete?: never;
@@ -68,8 +85,43 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        TokenLayerRequest: components["schemas"]["RegisterTokenLayerRequest"] | components["schemas"]["CreateTokenLayerRequest"];
-        TokenLayerResponse: components["schemas"]["RegisterActionResponse"] | components["schemas"]["CreateTokenActionResponse"];
+        TokenLayerRequest: components["schemas"]["RegisterTokenLayerRequest"] | components["schemas"]["CreateTokenLayerRequest"] | components["schemas"]["TradeTokenLayerRequest"] | components["schemas"]["SendTransactionLayerRequest"] | components["schemas"]["TransferTokenLayerRequest"] | components["schemas"]["ClaimRewardsLayerRequest"] | components["schemas"]["CreateReferralCodeLayerRequest"] | components["schemas"]["EnterReferralCodeLayerRequest"] | components["schemas"]["MintUsdLayerRequest"];
+        TokenLayerResponse: components["schemas"]["RegisterActionResponse"] | components["schemas"]["CreateTokenActionResponse"] | {
+            /** @enum {string} */
+            actionType: "tradeToken";
+            /** @enum {string} */
+            name: "tradeToken";
+        } | {
+            /** @enum {string} */
+            actionType: "sendTransaction";
+            /** @enum {string} */
+            name: "sendTransaction";
+        } | {
+            /** @enum {string} */
+            actionType: "transferToken";
+            /** @enum {string} */
+            name: "transferToken";
+        } | {
+            /** @enum {string} */
+            actionType: "claimRewards";
+            /** @enum {string} */
+            name: "claimRewards";
+        } | {
+            /** @enum {string} */
+            actionType: "createReferralCode";
+            /** @enum {string} */
+            name: "createReferralCode";
+        } | {
+            /** @enum {string} */
+            actionType: "enterReferralCode";
+            /** @enum {string} */
+            name: "enterReferralCode";
+        } | {
+            /** @enum {string} */
+            actionType: "mintUsd";
+            /** @enum {string} */
+            name: "mintUsd";
+        };
         TokenLayerError: {
             /** @enum {boolean} */
             success?: false;
@@ -77,8 +129,35 @@ export interface components {
             code?: string;
             details?: unknown;
         };
-        InfoRequest: components["schemas"]["GetTokensV2InfoRequest"];
-        InfoResponse: components["schemas"]["GetTokensV2InfoResponse"];
+        InfoRequest: components["schemas"]["GetTokensV2InfoRequest"] | components["schemas"]["QuoteTokenInfoRequest"] | components["schemas"]["MeInfoRequest"] | components["schemas"]["GetPoolDataInfoRequest"] | components["schemas"]["GetUserBalanceInfoRequest"] | components["schemas"]["SearchTokenInfoRequest"] | components["schemas"]["CheckTokenOwnershipInfoRequest"] | components["schemas"]["GetUserFeesInfoRequest"] | components["schemas"]["GetUserFeeHistoryInfoRequest"] | components["schemas"]["GetLeaderboardInfoRequest"] | components["schemas"]["GetUserPortfolioInfoRequest"];
+        InfoResponse: components["schemas"]["GetTokensV2InfoResponse"] | components["schemas"]["QuoteTokenInfoResponse"] | {
+            /** @enum {string} */
+            type: "me";
+        } | {
+            /** @enum {string} */
+            type: "getPoolData";
+        } | {
+            /** @enum {string} */
+            type: "getUserBalance";
+        } | {
+            /** @enum {string} */
+            type: "searchToken";
+        } | {
+            /** @enum {string} */
+            type: "checkTokenOwnership";
+        } | {
+            /** @enum {string} */
+            type: "getUserFees";
+        } | {
+            /** @enum {string} */
+            type: "getUserFeeHistory";
+        } | {
+            /** @enum {string} */
+            type: "getLeaderboard";
+        } | {
+            /** @enum {string} */
+            type: "getUserPortfolio";
+        };
         InfoError: {
             /** @enum {boolean} */
             success?: false;
@@ -150,12 +229,205 @@ export interface components {
             signatureChainId?: string;
             action: components["schemas"]["CreateTokenAction"];
         };
-        /** Register Response */
-        RegisterActionResponse: {
+        TradeTokenLayerRequest: {
             /**
-             * @description discriminator enum property added by openapi-typescript
+             * @description Environment indicator included in typed-data payload
              * @enum {string}
              */
+            source: "Mainnet" | "Testnet";
+            /**
+             * @description Nonce timestamp in milliseconds. Required for wallet-signature authentication.
+             * @example 1737600000000
+             */
+            nonce?: number;
+            /**
+             * @description Expiration window in milliseconds
+             * @example 300000
+             */
+            expiresAfter: number;
+            /**
+             * @description Required when using wallet signature auth (Bearer wallet address)
+             * @example 0x5f2a...
+             */
+            signature?: string;
+            /**
+             * @description Required when using wallet signature auth. EIP-712 domain chainId in hex.
+             * @example 0x1
+             */
+            signatureChainId?: string;
+            action: components["schemas"]["TradeTokenAction"];
+        };
+        SendTransactionLayerRequest: {
+            /**
+             * @description Environment indicator included in typed-data payload
+             * @enum {string}
+             */
+            source: "Mainnet" | "Testnet";
+            /**
+             * @description Nonce timestamp in milliseconds. Required for wallet-signature authentication.
+             * @example 1737600000000
+             */
+            nonce?: number;
+            /**
+             * @description Expiration window in milliseconds
+             * @example 300000
+             */
+            expiresAfter: number;
+            /**
+             * @description Required when using wallet signature auth (Bearer wallet address)
+             * @example 0x5f2a...
+             */
+            signature?: string;
+            /**
+             * @description Required when using wallet signature auth. EIP-712 domain chainId in hex.
+             * @example 0x1
+             */
+            signatureChainId?: string;
+            action: components["schemas"]["SendTransactionAction"];
+        };
+        TransferTokenLayerRequest: {
+            /**
+             * @description Environment indicator included in typed-data payload
+             * @enum {string}
+             */
+            source: "Mainnet" | "Testnet";
+            /**
+             * @description Nonce timestamp in milliseconds. Required for wallet-signature authentication.
+             * @example 1737600000000
+             */
+            nonce?: number;
+            /**
+             * @description Expiration window in milliseconds
+             * @example 300000
+             */
+            expiresAfter: number;
+            /**
+             * @description Required when using wallet signature auth (Bearer wallet address)
+             * @example 0x5f2a...
+             */
+            signature?: string;
+            /**
+             * @description Required when using wallet signature auth. EIP-712 domain chainId in hex.
+             * @example 0x1
+             */
+            signatureChainId?: string;
+            action: components["schemas"]["TransferTokenAction"];
+        };
+        ClaimRewardsLayerRequest: {
+            /**
+             * @description Environment indicator included in typed-data payload
+             * @enum {string}
+             */
+            source: "Mainnet" | "Testnet";
+            /**
+             * @description Nonce timestamp in milliseconds. Required for wallet-signature authentication.
+             * @example 1737600000000
+             */
+            nonce?: number;
+            /**
+             * @description Expiration window in milliseconds
+             * @example 300000
+             */
+            expiresAfter: number;
+            /**
+             * @description Required when using wallet signature auth (Bearer wallet address)
+             * @example 0x5f2a...
+             */
+            signature?: string;
+            /**
+             * @description Required when using wallet signature auth. EIP-712 domain chainId in hex.
+             * @example 0x1
+             */
+            signatureChainId?: string;
+            action: components["schemas"]["ClaimRewardsAction"];
+        };
+        CreateReferralCodeLayerRequest: {
+            /**
+             * @description Environment indicator included in typed-data payload
+             * @enum {string}
+             */
+            source: "Mainnet" | "Testnet";
+            /**
+             * @description Nonce timestamp in milliseconds. Required for wallet-signature authentication.
+             * @example 1737600000000
+             */
+            nonce?: number;
+            /**
+             * @description Expiration window in milliseconds
+             * @example 300000
+             */
+            expiresAfter: number;
+            /**
+             * @description Required when using wallet signature auth (Bearer wallet address)
+             * @example 0x5f2a...
+             */
+            signature?: string;
+            /**
+             * @description Required when using wallet signature auth. EIP-712 domain chainId in hex.
+             * @example 0x1
+             */
+            signatureChainId?: string;
+            action: components["schemas"]["CreateReferralCodeAction"];
+        };
+        EnterReferralCodeLayerRequest: {
+            /**
+             * @description Environment indicator included in typed-data payload
+             * @enum {string}
+             */
+            source: "Mainnet" | "Testnet";
+            /**
+             * @description Nonce timestamp in milliseconds. Required for wallet-signature authentication.
+             * @example 1737600000000
+             */
+            nonce?: number;
+            /**
+             * @description Expiration window in milliseconds
+             * @example 300000
+             */
+            expiresAfter: number;
+            /**
+             * @description Required when using wallet signature auth (Bearer wallet address)
+             * @example 0x5f2a...
+             */
+            signature?: string;
+            /**
+             * @description Required when using wallet signature auth. EIP-712 domain chainId in hex.
+             * @example 0x1
+             */
+            signatureChainId?: string;
+            action: components["schemas"]["EnterReferralCodeAction"];
+        };
+        MintUsdLayerRequest: {
+            /**
+             * @description Environment indicator included in typed-data payload
+             * @enum {string}
+             */
+            source: "Mainnet" | "Testnet";
+            /**
+             * @description Nonce timestamp in milliseconds. Required for wallet-signature authentication.
+             * @example 1737600000000
+             */
+            nonce?: number;
+            /**
+             * @description Expiration window in milliseconds
+             * @example 300000
+             */
+            expiresAfter: number;
+            /**
+             * @description Required when using wallet signature auth (Bearer wallet address)
+             * @example 0x5f2a...
+             */
+            signature?: string;
+            /**
+             * @description Required when using wallet signature auth. EIP-712 domain chainId in hex.
+             * @example 0x1
+             */
+            signatureChainId?: string;
+            action: components["schemas"]["MintUsdAction"];
+        };
+        /** Register Response */
+        RegisterActionResponse: {
+            /** @enum {string} */
             actionType: "register";
             /** @enum {string} */
             name: "register";
@@ -169,10 +441,7 @@ export interface components {
         };
         /** Create Token Response */
         CreateTokenActionResponse: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
+            /** @enum {string} */
             actionType: "createToken";
             /** @enum {string} */
             name: "createToken";
@@ -298,17 +567,191 @@ export interface components {
              */
             verified_only: boolean;
         };
-        /** Get Tokens V2 Response */
-        GetTokensV2InfoResponse: {
+        /**
+         * Quote Token
+         * @description Get token price quote
+         */
+        QuoteTokenInfoRequest: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
+            type: "quoteToken";
+            /**
+             * Format: uuid
+             * @description Token UUID (optional for new pool quotes - use poolTypeId instead)
+             * @example 550e8400-e29b-41d4-a716-446655440000
+             */
+            tokenId?: string;
+            chainSlug: components["schemas"]["ChainSlug"];
+            /**
+             * @description Amount to quote (interpretation depends on direction and inputToken)
+             * @default 1
+             * @example 100
+             */
+            amount: number;
+            /**
+             * @description Trade direction
+             * @default sell
+             * @example buy
+             * @enum {string}
+             */
+            direction: "buy" | "sell";
+            /**
+             * @description Whether amount represents tokens or USDC
+             * @default token
+             * @example usdc
+             * @enum {string}
+             */
+            inputToken: "token" | "usdc";
+            /**
+             * @description Pool type for new pool quotes. Use this instead of tokenId for tokens that don't exist yet. Defaults to "meme".
+             * @example meme
+             * @enum {string}
+             */
+            poolType?: "meme" | "startup-preseed" | "test";
+        };
+        MeInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "me";
+            include_testnets?: boolean;
+        };
+        GetPoolDataInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getPoolData";
+            /** Format: uuid */
+            tokenId: string;
+        };
+        GetUserBalanceInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getUserBalance";
+            /** Format: uuid */
+            token_id?: string;
+            chain_id?: number;
+        };
+        SearchTokenInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "searchToken";
+            /**
+             * @description Token UUID, contract address (0x...), token layer ID (bytes32), symbol, or slug to search for
+             * @example 550e8400-e29b-41d4-a716-446655440000
+             */
+            input: string;
+        };
+        CheckTokenOwnershipInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "checkTokenOwnership";
+            /** Format: uuid */
+            token_id: string;
+            user_address: string;
+            /** Format: uuid */
+            user_id?: string;
+        };
+        GetUserFeesInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getUserFees";
+            /** Format: uuid */
+            user_id?: string;
+            chains?: string[];
+        };
+        GetUserFeeHistoryInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getUserFeeHistory";
+            /** Format: uuid */
+            user_id?: string;
+            /** @enum {string} */
+            fee_type?: "builder" | "token_referral" | "ip_holder" | "protocol_referral" | "protocol_referral_cashback";
+            chains?: string[];
+            /** @default 50 */
+            limit: number;
+            /** @default 0 */
+            offset: number;
+        };
+        GetLeaderboardInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getLeaderboard";
+            /** @default 100 */
+            limit: number;
+            /** @default 0 */
+            offset: number;
+            /**
+             * @default both
+             * @enum {string}
+             */
+            network_mode: "testnet" | "mainnet" | "both";
+        };
+        GetUserPortfolioInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getUserPortfolio";
+            chains?: string[];
+        };
+        /** Get Tokens V2 Response */
+        GetTokensV2InfoResponse: {
+            /** @enum {string} */
             type: "getTokensV2";
             /** @enum {boolean} */
             success: true;
             tokens: components["schemas"]["TokenV2"][];
             pagination: components["schemas"]["Pagination"];
+        };
+        /** Quote Token Response */
+        QuoteTokenInfoResponse: {
+            /** @enum {string} */
+            type: "quoteToken";
+            /** @enum {boolean} */
+            success: true;
+            data: {
+                /** Format: uuid */
+                tokenId: string;
+                tokenSymbol: string;
+                tokenName: string;
+                chainSlug: components["schemas"]["ChainSlug"];
+                /** @enum {string} */
+                direction: "buy" | "sell";
+                /** @enum {string} */
+                inputToken: "token" | "usdc";
+                inputAmount: number;
+                outputAmount: number;
+                inputTokenSymbol: string;
+                outputTokenSymbol: string;
+                /** @enum {string} */
+                protocol: "RobinSwap" | "UniswapV3";
+                isGraduated: boolean;
+                /**
+                 * @description Initial deployment fee for new tokens (only present for non-graduated tokens)
+                 * @example 5
+                 */
+                initFee?: number;
+                /** Format: date-time */
+                timestamp: string;
+            };
         };
         /**
          * Register
@@ -454,6 +897,132 @@ export interface components {
              * @example 15.5
              */
             maxAmountIn?: number;
+        };
+        TradeTokenAction: {
+            /** @enum {string} */
+            type: "tradeToken";
+            /** Format: uuid */
+            tokenId: string;
+            /**
+             * @description User wallet address (optional - if not provided, will use user's Privy wallet from user_wallets table)
+             * @example 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb
+             */
+            userAddress?: string;
+            builder?: components["schemas"]["Builder"];
+            /**
+             * @description Token referral address for attribution (optional - defaults to zero address). Used to attribute referral fees to a specific address.
+             * @example 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb
+             */
+            token_referral?: string;
+            chainSlug: components["schemas"]["ChainSlug"];
+            /** @enum {string} */
+            direction: "buy" | "sell";
+            buyAmountUSD?: number;
+            /**
+             * @description Token amount to buy (number for regular amounts, string for exact wei values at 100%)
+             * @example 1000
+             */
+            buyAmountToken?: number | string;
+            /**
+             * @description Token amount to sell (number for regular amounts, string for exact wei values at 100%)
+             * @example 1000
+             */
+            sellAmountToken?: number | string;
+            sellAmountUSD?: number;
+        };
+        SendTransactionAction: {
+            /** @enum {string} */
+            type: "sendTransaction";
+            /**
+             * @description Recipient address
+             * @example 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb
+             */
+            to: string;
+            /**
+             * @description Amount in wei (as string to handle large numbers)
+             * @example 1000000000000000000
+             */
+            amount: string;
+            /**
+             * @description Optional transaction data (hex string)
+             * @example 0x
+             */
+            data?: string;
+            chainSlug: components["schemas"]["ChainSlug"];
+        };
+        TransferTokenAction: {
+            /** @enum {string} */
+            type: "transferToken";
+            /** Format: uuid */
+            token_id: string;
+            /**
+             * @description Recipient address (supports both EVM and Solana formats)
+             * @example 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb
+             */
+            recipient_address: string;
+            /**
+             * @description Human-readable amount (e.g., "100.5")
+             * @example 100.5
+             */
+            amount: string;
+            from_chain_slug: components["schemas"]["ChainSlug"] & unknown;
+            to_chain_slug: components["schemas"]["ChainSlug"] & unknown;
+            /** @description User wallet address (optional - will be fetched from user_wallets if not provided, supports both EVM and Solana formats) */
+            wallet_address?: string;
+        };
+        ClaimRewardsAction: {
+            /** @enum {string} */
+            type: "claimRewards";
+            currencyAddress?: string;
+            chains?: string[];
+        };
+        CreateReferralCodeAction: {
+            /** @enum {string} */
+            type: "createReferralCode";
+            /**
+             * @description Custom referral code (4-20 alphanumeric characters)
+             * @example ALICE2025
+             */
+            code: string;
+            /**
+             * @description Network mode for this referral code
+             * @default mainnet
+             * @example mainnet
+             * @enum {string}
+             */
+            network_mode: "testnet" | "mainnet" | "both";
+        };
+        EnterReferralCodeAction: {
+            /** @enum {string} */
+            type: "enterReferralCode";
+            /**
+             * @description The referral code to enter
+             * @example alice2025
+             */
+            referral_code: string;
+            /**
+             * @description Network mode for this referral code
+             * @default mainnet
+             * @example mainnet
+             * @enum {string}
+             */
+            network_mode: "testnet" | "mainnet" | "both";
+        };
+        MintUsdAction: {
+            /** @enum {string} */
+            type: "mintUsd";
+            chainSlug: components["schemas"]["ChainSlug"];
+            /**
+             * @description Amount of USD to mint (defaults to 100,000)
+             * @default 100000
+             * @example 100000
+             */
+            amount: number;
+            /**
+             * @description User wallet address to mint tokens to
+             * @example 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb
+             */
+            userAddress: string;
         };
         /**
          * @description Blockchain identifier. Supported chains: solana, solana-devnet, arbitrum, base, base-sepolia, avalanche, op-bnb, bnb, bnb-testnet, ethereum, monad, unichain, unichain-testnet, abstract, polygon, zksync, zksync-testnet
