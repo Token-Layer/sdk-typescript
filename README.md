@@ -90,6 +90,7 @@ const apiKeyTl = base.asApiKey(apiKey);
 - `action.createToken(params)`
 - `prepare.createToken(actionDraft)` (local typed helper)
 - `info.getTokensV2(params)` (no auth required)
+- `info.quoteToken(params)` (no auth required)
 - `asWallet(walletClient, opts?)`
 - `asJwt(token)`
 - `asApiKey(token)`
@@ -131,6 +132,14 @@ const result = await tokenLayer.info.getTokensV2({
   offset: 0,
   order_by: "volume_24h",
   order_direction: "DESC",
+});
+
+const quote = await tokenLayer.info.quoteToken({
+  chainSlug: "base",
+  tokenId: "550e8400-e29b-41d4-a716-446655440000",
+  direction: "buy",
+  inputToken: "usdc",
+  amount: 10,
 });
 ```
 

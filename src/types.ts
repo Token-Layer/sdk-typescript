@@ -13,11 +13,44 @@ export type RegisterTokenLayerRequest = Schemas["RegisterTokenLayerRequest"];
 export type TokenLayerError = Schemas["TokenLayerError"];
 export type TokenLayerRequest = Schemas["TokenLayerRequest"];
 export type TokenLayerResponse = Schemas["TokenLayerResponse"];
+export type ChainSlug = Schemas["ChainSlug"];
 export type GetTokensV2InfoRequest = Schemas["GetTokensV2InfoRequest"];
 export type GetTokensV2InfoResponse = Schemas["GetTokensV2InfoResponse"];
-export type InfoRequest = Schemas["InfoRequest"];
-export type InfoResponse = Schemas["InfoResponse"];
 export type InfoError = Schemas["InfoError"];
+
+export interface QuoteTokenInfoRequest {
+  type: "quoteToken";
+  tokenId?: string;
+  chainSlug: ChainSlug;
+  amount?: number;
+  direction?: "buy" | "sell";
+  inputToken?: "token" | "usdc";
+  poolType?: "meme" | "startup-preseed" | "test";
+}
+
+export interface QuoteTokenInfoResponse {
+  type: "quoteToken";
+  success: true;
+  data: {
+    tokenId: string;
+    tokenSymbol: string;
+    tokenName: string;
+    chainSlug: ChainSlug;
+    direction: "buy" | "sell";
+    inputToken: "token" | "usdc";
+    inputAmount: number;
+    outputAmount: number;
+    inputTokenSymbol: string;
+    outputTokenSymbol: string;
+    protocol: "RobinSwap" | "UniswapV3";
+    isGraduated: boolean;
+    initFee?: number;
+    timestamp: string;
+  };
+}
+
+export type InfoRequest = GetTokensV2InfoRequest | QuoteTokenInfoRequest;
+export type InfoResponse = GetTokensV2InfoResponse | QuoteTokenInfoResponse;
 
 export type CreateTokenActionInput = CreateTokenAction;
 export type RegisterActionInput = RegisterAction;
@@ -129,3 +162,4 @@ export interface CreateTokenOptions {
 
 export type CreateTokenActionDraft = CreateTokenParams["action"];
 export type GetTokensV2Params = Omit<GetTokensV2InfoRequest, "type">;
+export type QuoteTokenParams = Omit<QuoteTokenInfoRequest, "type">;

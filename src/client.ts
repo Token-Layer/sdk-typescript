@@ -27,6 +27,8 @@ import type {
   BuilderInput,
   GetTokensV2InfoResponse,
   GetTokensV2Params,
+  QuoteTokenInfoResponse,
+  QuoteTokenParams,
   InfoErrorResponse,
   TokenLayerDefaults,
 } from "./types.js";
@@ -131,10 +133,25 @@ export class TokenLayerClient {
         }
         return payload;
       },
+      quoteToken: async (
+        params: QuoteTokenParams,
+      ): Promise<QuoteTokenInfoResponse> => {
+        const payload = await this.postAnonymous<QuoteTokenInfoResponse>(
+          this.infoUrl,
+          { type: "quoteToken", ...params },
+        );
+        if (payload.type !== "quoteToken") {
+          throw new Error(
+            `Unexpected type for info.quoteToken: ${String((payload as { type?: string }).type)}`,
+          );
+        }
+        return payload;
+      },
     };
   }
   public readonly info: {
     getTokensV2: (params: GetTokensV2Params) => Promise<GetTokensV2InfoResponse>;
+    quoteToken: (params: QuoteTokenParams) => Promise<QuoteTokenInfoResponse>;
   };
 
   asWallet(
