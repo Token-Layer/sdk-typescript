@@ -53,6 +53,11 @@ function nowNonce(): number {
   return Date.now();
 }
 
+function isInvalidBearerToken(token: string): boolean {
+  const normalized = token.trim().toLowerCase();
+  return normalized.length === 0 || normalized === "undefined" || normalized === "null";
+}
+
 function normalizeBaseUrl(baseUrl: string): string {
   const apiBase = normalizeApiBaseUrl(baseUrl);
   return `${apiBase}/token-layer`;
@@ -206,6 +211,11 @@ export class TokenLayerClient {
     if (!auth) {
       throw new Error(
         "No auth configured. Initialize TokenLayer with auth or use asWallet/asJwt/asApiKey.",
+      );
+    }
+    if ((auth.type === "jwt" || auth.type === "apiKey") && isInvalidBearerToken(auth.token)) {
+      throw new Error(
+        `Invalid ${auth.type} token. Provide a non-empty token value.`,
       );
     }
 
