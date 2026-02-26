@@ -88,9 +88,25 @@ const apiKeyTl = base.asApiKey(apiKey);
 
 - `action.register(params?)` (wallet auth only)
 - `action.createToken(params)`
+- `action.tradeToken(params)` (JWT/API key auth)
+- `action.sendTransaction(params)` (JWT/API key auth)
+- `action.transferToken(params)` (JWT/API key auth)
+- `action.claimRewards(params)` (JWT/API key auth)
+- `action.createReferralCode(params)` (JWT/API key auth)
+- `action.enterReferralCode(params)` (JWT/API key auth)
+- `action.mintUsd(params)` (JWT/API key auth, testnet-only action)
 - `prepare.createToken(actionDraft)` (local typed helper)
 - `info.getTokensV2(params)` (no auth required)
 - `info.quoteToken(params)` (no auth required)
+- `info.me(params?)` (JWT/API key auth)
+- `info.getPoolData(params)` (no auth required)
+- `info.getUserBalance(params)` (JWT/API key auth)
+- `info.searchToken(params)` (no auth required)
+- `info.checkTokenOwnership(params)` (no auth required)
+- `info.getUserFees(params?)` (JWT/API key auth)
+- `info.getUserFeeHistory(params?)` (JWT/API key auth)
+- `info.getLeaderboard(params?)` (no auth required)
+- `info.getUserPortfolio(params?)` (JWT/API key auth)
 - `asWallet(walletClient, opts?)`
 - `asJwt(token)`
 - `asApiKey(token)`
@@ -140,6 +156,35 @@ const quote = await tokenLayer.info.quoteToken({
   direction: "buy",
   inputToken: "usdc",
   amount: 10,
+});
+
+const leaderboard = await tokenLayer.info.getLeaderboard({
+  limit: 10,
+  offset: 0,
+  network_mode: "both",
+});
+```
+
+## New Action Examples
+
+```ts
+const authed = tokenLayer.asJwt(process.env.JWT!);
+
+await authed.action.tradeToken({
+  action: {
+    tokenId: "550e8400-e29b-41d4-a716-446655440000",
+    chainSlug: "base",
+    direction: "buy",
+    buyAmountUSD: 5,
+  },
+});
+
+await authed.action.sendTransaction({
+  action: {
+    to: "0x000000000000000000000000000000000000dEaD",
+    amount: "1",
+    chainSlug: "base",
+  },
 });
 ```
 
