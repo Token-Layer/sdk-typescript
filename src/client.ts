@@ -9,6 +9,7 @@ import {
 } from "viem";
 import {
   signCreateTokenRequest,
+  signInfoAuthRequest,
   signRegisterRequest,
 } from "./eip712.js";
 import type {
@@ -84,6 +85,11 @@ const DEFAULT_BASE_URL = "https://api.tokenlayer.network/functions/v1";
 function nowNonce(): number {
   return Date.now();
 }
+
+type RequestAuth = {
+  bearer?: string;
+  headers?: Record<string, string>;
+};
 
 function isInvalidBearerToken(token: string): boolean {
   const normalized = token.trim().toLowerCase();
@@ -218,7 +224,7 @@ export class TokenLayerClient {
         const payload = await this.postInfo<GetTokensV2InfoResponse>(
           this.infoUrl,
           this.withDefaultsForGetTokensV2({ type: "getTokensV2", ...params }),
-          this.resolveOptionalInfoBearer(undefined, "getTokensV2"),
+          this.resolveOptionalInfoAuth(undefined, "getTokensV2"),
         );
         if (payload.type !== "getTokensV2") {
           throw new Error(
@@ -257,7 +263,7 @@ export class TokenLayerClient {
         await this.postInfo<GetPoolDataInfoResponse>(
           this.infoUrl,
           { type: "getPoolData", ...params },
-          this.resolveOptionalInfoBearer(authOverride, "getPoolData"),
+          this.resolveOptionalInfoAuth(authOverride, "getPoolData"),
         ),
       getUserBalance: async (
         params: GetUserBalanceParams,
@@ -275,7 +281,7 @@ export class TokenLayerClient {
         await this.postInfo<SearchTokenInfoResponse>(
           this.infoUrl,
           { type: "searchToken", ...params },
-          this.resolveOptionalInfoBearer(authOverride, "searchToken"),
+          this.resolveOptionalInfoAuth(authOverride, "searchToken"),
         ),
       checkTokenOwnership: async (
         params: CheckTokenOwnershipParams,
@@ -284,7 +290,7 @@ export class TokenLayerClient {
         await this.postInfo<CheckTokenOwnershipInfoResponse>(
           this.infoUrl,
           { type: "checkTokenOwnership", ...params },
-          this.resolveOptionalInfoBearer(authOverride, "checkTokenOwnership"),
+          this.resolveOptionalInfoAuth(authOverride, "checkTokenOwnership"),
         ),
       getUserFees: async (
         params: GetUserFeesParams = {},
@@ -311,7 +317,7 @@ export class TokenLayerClient {
         await this.postInfo<GetLeaderboardInfoResponse>(
           this.infoUrl,
           { type: "getLeaderboard", ...params },
-          this.resolveOptionalInfoBearer(authOverride, "getLeaderboard"),
+          this.resolveOptionalInfoAuth(authOverride, "getLeaderboard"),
         ),
       getUserPortfolio: async (
         params: GetUserPortfolioParams = {},
@@ -441,25 +447,61 @@ export class TokenLayerClient {
     return auth.token;
   }
 
-  private resolveOptionalInfoBearer(
+  private resolveOptionalInfoAuth(
     authOverride: TokenLayerAuth | undefined,
-    operationName: string,
-  ): string | undefined {
+    _operationName: string,
+  ): RequestAuth | undefined {
     const auth = authOverride || this.auth;
     if (!auth) {
       return undefined;
     }
     if (auth.type === "wallet") {
-      throw new Error(
-        `${operationName} info request does not support wallet auth. Use JWT/API key auth or no auth.`,
-      );
+      return undefined;
     }
     if (isInvalidBearerToken(auth.token)) {
       throw new Error(
         `Invalid ${auth.type} token. Provide a non-empty token value.`,
       );
     }
-    return auth.token;
+    return { bearer: auth.token };
+  }
+
+  private async resolveRequiredInfoAuth(
+    authOverride: TokenLayerAuth | undefined,
+    operationName: string,
+    body: unknown,
+  ): Promise<RequestAuth> {
+    const auth = this.resolveAuth(authOverride);
+    if (auth.type === "wallet") {
+      const accountAddress = auth.walletAddress || auth.walletClient.account?.address;
+      if (!accountAddress) {
+        throw new Error(
+          `${operationName} requires wallet address. Provide auth.walletAddress or walletClient.account.address.`,
+        );
+      }
+      const nonce = nowNonce();
+      const expiresAfter = this.expiresAfterMs;
+      const signed = await signInfoAuthRequest(auth.walletClient, {
+        operation: operationName,
+        body,
+        nonce,
+        expiresAfter,
+        signatureChainId: auth.signatureChainId,
+      });
+
+      return {
+        bearer: getAddress(accountAddress),
+        headers: {
+          "x-info-signature": signed.signature,
+          "x-info-nonce": String(signed.nonce),
+          "x-info-expires-after": String(signed.expiresAfter),
+          "x-info-signature-chain-id": signed.signatureChainId,
+        },
+      };
+    }
+    return {
+      bearer: auth.token,
+    };
   }
 
   async register(
@@ -881,9 +923,14 @@ export class TokenLayerClient {
   private async postInfo<T>(
     url: string,
     body: unknown,
-    bearer?: string,
+    auth?: RequestAuth,
   ): Promise<T> {
-    return this.postToUrl<T, InfoErrorResponse>(url, body, bearer);
+    return this.postToUrl<T, InfoErrorResponse>(
+      url,
+      body,
+      auth?.bearer,
+      auth?.headers,
+    );
   }
 
   private async postInfoAuth<T>(
@@ -891,20 +938,26 @@ export class TokenLayerClient {
     operationName: string,
     authOverride?: TokenLayerAuth,
   ): Promise<T> {
-    const bearer = this.resolveBearerForStandardAuth(authOverride, operationName);
-    return this.postInfo<T>(this.infoUrl, body, bearer);
+    const auth = await this.resolveRequiredInfoAuth(
+      authOverride,
+      operationName,
+      body,
+    );
+    return this.postInfo<T>(this.infoUrl, body, auth);
   }
 
   private async postToUrl<T, E extends { error?: string; code?: string; details?: unknown }>(
     url: string,
     body: unknown,
     bearer?: string,
+    extraHeaders?: Record<string, string>,
   ): Promise<T> {
     const response = await this.fetchImpl(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
+        ...(extraHeaders || {}),
       },
       body: JSON.stringify(body),
     });

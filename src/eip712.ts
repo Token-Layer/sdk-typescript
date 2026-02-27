@@ -56,6 +56,16 @@ const REGISTER_TYPES = {
   ],
 } as const;
 
+const INFO_AUTH_TYPES = {
+  InfoAuth: [
+    { name: "type", type: "string" },
+    { name: "operation", type: "string" },
+    { name: "bodyHash", type: "bytes32" },
+    { name: "nonce", type: "uint64" },
+    { name: "expiresAfter", type: "uint64" },
+  ],
+} as const;
+
 function hashStringArray(values: string[] | undefined): Hex {
   if (!values || values.length === 0) {
     return keccak256(stringToHex(""));
@@ -138,6 +148,22 @@ function getTypedDomain(signatureChainIdHex: Hex) {
     chainId: BigInt(signatureChainIdHex),
     verifyingContract: ZERO_ADDRESS,
   } as const;
+}
+
+function stableJson(value: unknown): string {
+  if (value === null || value === undefined) return "null";
+  if (typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) {
+    return `[${value.map((v) => stableJson(v)).join(",")}]`;
+  }
+  const entries = Object.entries(value as Record<string, unknown>).sort(
+    ([a], [b]) => a.localeCompare(b),
+  );
+  return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${stableJson(v)}`).join(",")}}`;
+}
+
+function getInfoBodyHash(body: unknown): Hex {
+  return keccak256(stringToHex(stableJson(body)));
 }
 
 function getWalletAccount(walletClient: WalletClient): Account {
@@ -293,5 +319,48 @@ export async function signRegisterRequest(
       message,
       signature: actionSignature,
     },
+  };
+}
+
+export async function signInfoAuthRequest(
+  walletClient: WalletClient,
+  params: {
+    operation: string;
+    body: unknown;
+    nonce: number;
+    expiresAfter: number;
+    signatureChainId?: Hex;
+  },
+): Promise<{
+  nonce: number;
+  expiresAfter: number;
+  signatureChainId: Hex;
+  signature: Hex;
+}> {
+  const signatureChainId = resolveSignatureChainIdHex(
+    walletClient,
+    params.signatureChainId,
+  );
+  const account = getWalletAccount(walletClient);
+
+  const signature = await walletClient.signTypedData({
+    account,
+    domain: getTypedDomain(signatureChainId),
+    primaryType: "InfoAuth",
+    types: INFO_AUTH_TYPES,
+    message: {
+      type: "infoAuth",
+      operation: params.operation,
+      bodyHash: getInfoBodyHash(params.body),
+      nonce: BigInt(params.nonce),
+      expiresAfter: BigInt(params.expiresAfter),
+    },
+  });
+
+  return {
+    nonce: params.nonce,
+    expiresAfter: params.expiresAfter,
+    signatureChainId,
+    signature,
   };
 }
