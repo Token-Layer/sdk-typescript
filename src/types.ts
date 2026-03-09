@@ -81,6 +81,63 @@ export type GetUserPortfolioInfoRequest = Schemas["GetUserPortfolioInfoRequest"]
 
 export type GetTokensV2InfoResponse = Schemas["GetTokensV2InfoResponse"];
 export type QuoteTokenInfoResponse = Schemas["QuoteTokenInfoResponse"];
+export type ActivityType = "trade" | "transfer" | "lp" | "lifecycle";
+export type ActivitySubtype =
+  | "buy"
+  | "sell"
+  | "local"
+  | "cross_chain_sent"
+  | "cross_chain_received"
+  | "deposit"
+  | "withdrawal"
+  | "graduation";
+
+export interface GetTokenTradesInfoRequest {
+  type: "getTokenTrades";
+  token_id: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GetTokenTransfersInfoRequest {
+  type: "getTokenTransfers";
+  token_id: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GetTokenActivityInfoRequest {
+  type: "getTokenActivity";
+  token_id: string;
+  limit?: number;
+  offset?: number;
+  include_activity_types?: ActivityType[];
+  ignore_activity_types?: ActivityType[];
+  include_activity_subtypes?: ActivitySubtype[];
+  ignore_activity_subtypes?: ActivitySubtype[];
+}
+
+export interface GetTokenTradesInfoResponse {
+  type: "getTokenTrades";
+  success?: boolean;
+  activities?: unknown[];
+  [key: string]: unknown;
+}
+
+export interface GetTokenTransfersInfoResponse {
+  type: "getTokenTransfers";
+  success?: boolean;
+  activities?: unknown[];
+  [key: string]: unknown;
+}
+
+export interface GetTokenActivityInfoResponse {
+  type: "getTokenActivity";
+  success?: boolean;
+  activities?: unknown[];
+  [key: string]: unknown;
+}
+
 export type MeInfoResponse = Extract<InfoResponse, { type: "me" }>;
 export type GetPoolDataInfoResponse = Extract<
   InfoResponse,
@@ -110,8 +167,10 @@ export type GetUserPortfolioInfoResponse = Extract<
 >;
 
 export type InfoError = Schemas["InfoError"];
-export type InfoRequest = Schemas["InfoRequest"];
-export type InfoResponse = Schemas["InfoResponse"];
+export type InfoRequest = Schemas["InfoRequest"] | GetTokenTradesInfoRequest |
+  GetTokenTransfersInfoRequest | GetTokenActivityInfoRequest;
+export type InfoResponse = Schemas["InfoResponse"] | GetTokenTradesInfoResponse |
+  GetTokenTransfersInfoResponse | GetTokenActivityInfoResponse;
 
 export type CreateTokenActionInput = CreateTokenAction;
 export type RegisterActionInput = RegisterAction;
@@ -255,3 +314,6 @@ export type GetLeaderboardParams = Partial<
   Omit<GetLeaderboardInfoRequest, "type">
 >;
 export type GetUserPortfolioParams = Omit<GetUserPortfolioInfoRequest, "type">;
+export type GetTokenTradesParams = Omit<GetTokenTradesInfoRequest, "type">;
+export type GetTokenTransfersParams = Omit<GetTokenTransfersInfoRequest, "type">;
+export type GetTokenActivityParams = Omit<GetTokenActivityInfoRequest, "type">;

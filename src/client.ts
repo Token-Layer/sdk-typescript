@@ -29,10 +29,16 @@ import type {
   EnterReferralCodeResponse,
   GetLeaderboardInfoResponse,
   GetLeaderboardParams,
+  GetTokenActivityInfoResponse,
+  GetTokenActivityParams,
   GetPoolDataInfoResponse,
   GetPoolDataParams,
+  GetTokenTradesInfoResponse,
+  GetTokenTradesParams,
   RegisterParams,
   RegisterResponse,
+  GetTokenTransfersInfoResponse,
+  GetTokenTransfersParams,
   GetUserBalanceInfoResponse,
   GetUserBalanceParams,
   GetUserFeeHistoryInfoResponse,
@@ -328,6 +334,54 @@ export class TokenLayerClient {
           "getUserPortfolio",
           authOverride,
         ),
+      getTokenTrades: async (
+        params: GetTokenTradesParams,
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetTokenTradesInfoResponse> => {
+        const payload = await this.postInfo<GetTokenTradesInfoResponse>(
+          this.infoUrl,
+          { type: "getTokenTrades", ...params },
+          this.resolveOptionalInfoAuth(authOverride, "getTokenTrades"),
+        );
+        if (payload.type !== "getTokenTrades") {
+          throw new Error(
+            `Unexpected type for info.getTokenTrades: ${String((payload as { type?: string }).type)}`,
+          );
+        }
+        return payload;
+      },
+      getTokenTransfers: async (
+        params: GetTokenTransfersParams,
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetTokenTransfersInfoResponse> => {
+        const payload = await this.postInfo<GetTokenTransfersInfoResponse>(
+          this.infoUrl,
+          { type: "getTokenTransfers", ...params },
+          this.resolveOptionalInfoAuth(authOverride, "getTokenTransfers"),
+        );
+        if (payload.type !== "getTokenTransfers") {
+          throw new Error(
+            `Unexpected type for info.getTokenTransfers: ${String((payload as { type?: string }).type)}`,
+          );
+        }
+        return payload;
+      },
+      getTokenActivity: async (
+        params: GetTokenActivityParams,
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetTokenActivityInfoResponse> => {
+        const payload = await this.postInfo<GetTokenActivityInfoResponse>(
+          this.infoUrl,
+          { type: "getTokenActivity", ...params },
+          this.resolveOptionalInfoAuth(authOverride, "getTokenActivity"),
+        );
+        if (payload.type !== "getTokenActivity") {
+          throw new Error(
+            `Unexpected type for info.getTokenActivity: ${String((payload as { type?: string }).type)}`,
+          );
+        }
+        return payload;
+      },
     };
   }
   public readonly info: {
@@ -369,6 +423,18 @@ export class TokenLayerClient {
       params?: GetUserPortfolioParams,
       authOverride?: TokenLayerAuth,
     ) => Promise<GetUserPortfolioInfoResponse>;
+    getTokenTrades: (
+      params: GetTokenTradesParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetTokenTradesInfoResponse>;
+    getTokenTransfers: (
+      params: GetTokenTransfersParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetTokenTransfersInfoResponse>;
+    getTokenActivity: (
+      params: GetTokenActivityParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetTokenActivityInfoResponse>;
   };
 
   asWallet(
