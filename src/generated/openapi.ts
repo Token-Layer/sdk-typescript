@@ -1310,6 +1310,10 @@ export interface components {
             price_change_1h_abs: string | null;
             price_change_6h_abs: string | null;
             price_change_24h_abs: string | null;
+            total_volume_token: string | null;
+            total_volume_token_raw: string | null;
+            total_volume_usd: string | null;
+            total_volume_usd_raw: string | null;
             volume_usd_5m: string | null;
             volume_usd_1h: string | null;
             volume_usd_6h: string | null;
