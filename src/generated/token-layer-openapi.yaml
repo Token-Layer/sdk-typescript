@@ -119,6 +119,11 @@ paths:
             - getUserFeeHistory
             - getLeaderboard
             - getUserPortfolio
+            - getTokenTrades
+            - getTokenTransfers
+            - getTokenActivity
+            - getTokenCandles
+            - getTokenStats
       operationId: getInfo
       security:
         - BearerAuth: []
@@ -283,6 +288,11 @@ components:
         - $ref: "#/components/schemas/GetUserFeeHistoryInfoRequest"
         - $ref: "#/components/schemas/GetLeaderboardInfoRequest"
         - $ref: "#/components/schemas/GetUserPortfolioInfoRequest"
+        - $ref: "#/components/schemas/GetTokenTradesInfoRequest"
+        - $ref: "#/components/schemas/GetTokenTransfersInfoRequest"
+        - $ref: "#/components/schemas/GetTokenActivityInfoRequest"
+        - $ref: "#/components/schemas/GetTokenCandlesInfoRequest"
+        - $ref: "#/components/schemas/GetTokenStatsInfoRequest"
       discriminator:
         propertyName: type
         mapping:
@@ -297,6 +307,11 @@ components:
           getUserFeeHistory: "#/components/schemas/GetUserFeeHistoryInfoRequest"
           getLeaderboard: "#/components/schemas/GetLeaderboardInfoRequest"
           getUserPortfolio: "#/components/schemas/GetUserPortfolioInfoRequest"
+          getTokenTrades: "#/components/schemas/GetTokenTradesInfoRequest"
+          getTokenTransfers: "#/components/schemas/GetTokenTransfersInfoRequest"
+          getTokenActivity: "#/components/schemas/GetTokenActivityInfoRequest"
+          getTokenCandles: "#/components/schemas/GetTokenCandlesInfoRequest"
+          getTokenStats: "#/components/schemas/GetTokenStatsInfoRequest"
     InfoResponse:
       oneOf:
         - $ref: "#/components/schemas/GetTokensV2InfoResponse"
@@ -373,6 +388,11 @@ components:
                 - getUserPortfolio
           required:
             - type
+        - $ref: "#/components/schemas/GetTokenTradesInfoResponse"
+        - $ref: "#/components/schemas/GetTokenTransfersInfoResponse"
+        - $ref: "#/components/schemas/GetTokenActivityInfoResponse"
+        - $ref: "#/components/schemas/GetTokenCandlesInfoResponse"
+        - $ref: "#/components/schemas/GetTokenStatsInfoResponse"
     InfoError:
       type: object
       properties:
@@ -1189,6 +1209,165 @@ components:
             type: string
       required:
         - type
+    GetTokenTradesInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenTrades
+        token_id:
+          type: string
+          minLength: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        offset:
+          type: integer
+          minimum: 0
+          default: 0
+      required:
+        - type
+        - token_id
+    GetTokenTransfersInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenTransfers
+        token_id:
+          type: string
+          minLength: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        offset:
+          type: integer
+          minimum: 0
+          default: 0
+      required:
+        - type
+        - token_id
+    GetTokenActivityInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenActivity
+        token_id:
+          type: string
+          minLength: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        offset:
+          type: integer
+          minimum: 0
+          default: 0
+        include_activity_types:
+          type: array
+          items:
+            type: string
+            enum:
+              - trade
+              - transfer
+              - lp
+              - lifecycle
+        ignore_activity_types:
+          type: array
+          items:
+            type: string
+            enum:
+              - trade
+              - transfer
+              - lp
+              - lifecycle
+        include_activity_subtypes:
+          type: array
+          items:
+            type: string
+            enum:
+              - buy
+              - sell
+              - local
+              - cross_chain_sent
+              - cross_chain_received
+              - deposit
+              - withdrawal
+              - graduation
+        ignore_activity_subtypes:
+          type: array
+          items:
+            type: string
+            enum:
+              - buy
+              - sell
+              - local
+              - cross_chain_sent
+              - cross_chain_received
+              - deposit
+              - withdrawal
+              - graduation
+      required:
+        - type
+        - token_id
+    GetTokenCandlesInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenCandles
+        token_id:
+          type: string
+          minLength: 1
+        candle_interval:
+          $ref: "#/components/schemas/CandleInterval"
+        venue:
+          type: string
+          minLength: 1
+        from_timestamp:
+          type: string
+          format: date-time
+        to_timestamp:
+          type: string
+          format: date-time
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 5000
+          default: 500
+        offset:
+          type: integer
+          minimum: 0
+          default: 0
+        ascending:
+          type: boolean
+          default: true
+      required:
+        - type
+        - token_id
+    GetTokenStatsInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenStats
+        token_id:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - token_id
     GetTokensV2InfoResponse:
       type: object
       properties:
@@ -1287,6 +1466,91 @@ components:
         - success
         - data
       title: Quote Token Response
+    GetTokenTradesInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenTrades
+        success:
+          type: boolean
+        activities:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenTradeInfoItem"
+      required:
+        - type
+        - success
+        - activities
+    GetTokenTransfersInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenTransfers
+        success:
+          type: boolean
+        activities:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenTransferInfoItem"
+      required:
+        - type
+        - success
+        - activities
+    GetTokenActivityInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenActivity
+        success:
+          type: boolean
+        activities:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenActivityInfoItem"
+      required:
+        - type
+        - success
+        - activities
+    GetTokenCandlesInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenCandles
+        success:
+          type: boolean
+        candles:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenCandle"
+      required:
+        - type
+        - success
+        - candles
+    GetTokenStatsInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenStats
+        success:
+          type: boolean
+        stats:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenStatsCurrent"
+      required:
+        - type
+        - success
+        - stats
     RegisterAction:
       type: object
       properties:
@@ -1708,6 +1972,15 @@ components:
         ethereum, monad, unichain, unichain-testnet, abstract, polygon, zksync,
         zksync-testnet"
       example: base-sepolia
+    CandleInterval:
+      type: string
+      enum:
+        - 1m
+        - 5m
+        - 15m
+        - 1h
+        - 4h
+        - 1d
     TokenV2:
       type: object
       properties:
@@ -1821,6 +2094,665 @@ components:
         - total_returned
         - has_more
       description: Pagination information
+    TokenTradeInfoItem:
+      type: object
+      properties:
+        chain:
+          type: string
+        evt_block_number:
+          anyOf:
+            - type: string
+            - type: number
+        evt_block_time:
+          type: string
+          format: date-time
+        evt_tx_hash:
+          type: string
+        evt_index:
+          anyOf:
+            - type: string
+            - type: number
+        venue:
+          type: string
+        trade_type:
+          type: string
+        wallet:
+          type: string
+        token_address:
+          type: string
+        token_layer_id:
+          type: string
+          nullable: true
+        pool:
+          type: string
+          nullable: true
+        token_amount:
+          type: string
+        token_amount_raw:
+          type: string
+        usd_amount:
+          type: string
+          nullable: true
+        usd_amount_raw:
+          type: string
+          nullable: true
+        price_usd:
+          type: string
+          nullable: true
+        price_usd_raw:
+          type: string
+          nullable: true
+        market_cap_usd:
+          type: string
+          nullable: true
+        market_cap_usd_raw:
+          type: string
+          nullable: true
+        token_decimals:
+          type: string
+          nullable: true
+        quote_decimals:
+          type: string
+          nullable: true
+        token_decimals_source:
+          type: string
+          nullable: true
+        quote_decimals_source:
+          type: string
+          nullable: true
+      required:
+        - chain
+        - evt_block_number
+        - evt_block_time
+        - evt_tx_hash
+        - evt_index
+        - venue
+        - trade_type
+        - wallet
+        - token_address
+        - token_layer_id
+        - pool
+        - token_amount
+        - token_amount_raw
+        - usd_amount
+        - usd_amount_raw
+        - price_usd
+        - price_usd_raw
+        - market_cap_usd
+        - market_cap_usd_raw
+        - token_decimals
+        - quote_decimals
+        - token_decimals_source
+        - quote_decimals_source
+    TokenTransferInfoItem:
+      type: object
+      properties:
+        chain:
+          type: string
+        transfer_type:
+          type: string
+        evt_block_number:
+          anyOf:
+            - type: string
+            - type: number
+        evt_block_time:
+          type: string
+          format: date-time
+        evt_tx_hash:
+          type: string
+        evt_index:
+          anyOf:
+            - type: string
+            - type: number
+        token_layer_id:
+          type: string
+          nullable: true
+        token_address:
+          type: string
+        from_address:
+          type: string
+          nullable: true
+        to_address:
+          type: string
+          nullable: true
+        amount:
+          type: string
+        amount_raw:
+          type: string
+        amount_received_ld:
+          type: string
+          nullable: true
+        amount_received_ld_raw:
+          type: string
+          nullable: true
+        guid:
+          type: string
+          nullable: true
+        src_eid:
+          type: string
+          nullable: true
+        dst_eid:
+          type: string
+          nullable: true
+      required:
+        - chain
+        - transfer_type
+        - evt_block_number
+        - evt_block_time
+        - evt_tx_hash
+        - evt_index
+        - token_layer_id
+        - token_address
+        - from_address
+        - to_address
+        - amount
+        - amount_raw
+        - amount_received_ld
+        - amount_received_ld_raw
+        - guid
+        - src_eid
+        - dst_eid
+    TokenActivityInfoItem:
+      type: object
+      properties:
+        chain:
+          type: string
+        activity_type:
+          type: string
+          enum:
+            - trade
+            - transfer
+            - lp
+            - lifecycle
+        activity_subtype:
+          type: string
+          enum:
+            - buy
+            - sell
+            - local
+            - cross_chain_sent
+            - cross_chain_received
+            - deposit
+            - withdrawal
+            - graduation
+        evt_block_number:
+          anyOf:
+            - type: string
+            - type: number
+        evt_block_time:
+          type: string
+          format: date-time
+        tx_hash:
+          type: string
+        evt_index:
+          anyOf:
+            - type: string
+            - type: number
+        token_layer_id:
+          type: string
+          nullable: true
+        token_id:
+          type: string
+          nullable: true
+        token_address:
+          type: string
+        wallet:
+          type: string
+          nullable: true
+        from_address:
+          type: string
+          nullable: true
+        to_address:
+          type: string
+          nullable: true
+        token_amount:
+          type: string
+          nullable: true
+        token_amount_raw:
+          type: string
+          nullable: true
+        usd_amount:
+          type: string
+          nullable: true
+        usd_amount_raw:
+          type: string
+          nullable: true
+        price_usd:
+          type: string
+          nullable: true
+        price_usd_raw:
+          type: string
+          nullable: true
+        market_cap_usd:
+          type: string
+          nullable: true
+        market_cap_usd_raw:
+          type: string
+          nullable: true
+        pool:
+          type: string
+          nullable: true
+        liquidity_amount:
+          type: string
+          nullable: true
+        liquidity_amount_raw:
+          type: string
+          nullable: true
+        amount0:
+          type: string
+          nullable: true
+        amount0_raw:
+          type: string
+          nullable: true
+        amount1:
+          type: string
+          nullable: true
+        amount1_raw:
+          type: string
+          nullable: true
+        guid:
+          type: string
+          nullable: true
+        src_eid:
+          type: string
+          nullable: true
+        dst_eid:
+          type: string
+          nullable: true
+        is_external:
+          type: boolean
+          nullable: true
+        final_supply:
+          type: string
+          nullable: true
+        final_supply_raw:
+          type: string
+          nullable: true
+        final_reserves:
+          type: string
+          nullable: true
+        final_reserves_raw:
+          type: string
+          nullable: true
+        token_decimals:
+          type: string
+          nullable: true
+        price_usd_at_event:
+          type: string
+          nullable: true
+        price_usd_at_event_raw:
+          type: string
+          nullable: true
+        usd_value:
+          type: string
+          nullable: true
+        usd_value_raw:
+          type: string
+          nullable: true
+      required:
+        - chain
+        - activity_type
+        - activity_subtype
+        - evt_block_number
+        - evt_block_time
+        - tx_hash
+        - evt_index
+        - token_layer_id
+        - token_id
+        - token_address
+        - wallet
+        - from_address
+        - to_address
+        - token_amount
+        - token_amount_raw
+        - usd_amount
+        - usd_amount_raw
+        - price_usd
+        - price_usd_raw
+        - market_cap_usd
+        - market_cap_usd_raw
+        - pool
+        - liquidity_amount
+        - liquidity_amount_raw
+        - amount0
+        - amount0_raw
+        - amount1
+        - amount1_raw
+        - guid
+        - src_eid
+        - dst_eid
+        - is_external
+        - final_supply
+        - final_supply_raw
+        - final_reserves
+        - final_reserves_raw
+        - token_decimals
+        - price_usd_at_event
+        - price_usd_at_event_raw
+        - usd_value
+        - usd_value_raw
+    TokenCandle:
+      type: object
+      properties:
+        chain:
+          type: string
+        token_layer_id:
+          type: string
+        token_address:
+          type: string
+        venue:
+          type: string
+        candle_interval:
+          anyOf:
+            - $ref: "#/components/schemas/CandleInterval"
+            - type: string
+        bucket_start:
+          type: string
+          format: date-time
+        bucket_end:
+          type: string
+          format: date-time
+        open_price_usd:
+          type: string
+        open_price_usd_raw:
+          type: string
+        high_price_usd:
+          type: string
+        high_price_usd_raw:
+          type: string
+        low_price_usd:
+          type: string
+        low_price_usd_raw:
+          type: string
+        close_price_usd:
+          type: string
+        close_price_usd_raw:
+          type: string
+        volume_token:
+          type: string
+        volume_token_raw:
+          type: string
+        volume_usd:
+          type: string
+        volume_usd_raw:
+          type: string
+        trade_count:
+          type: string
+        trade_count_raw:
+          type: string
+      required:
+        - chain
+        - token_layer_id
+        - token_address
+        - venue
+        - candle_interval
+        - bucket_start
+        - bucket_end
+        - open_price_usd
+        - open_price_usd_raw
+        - high_price_usd
+        - high_price_usd_raw
+        - low_price_usd
+        - low_price_usd_raw
+        - close_price_usd
+        - close_price_usd_raw
+        - volume_token
+        - volume_token_raw
+        - volume_usd
+        - volume_usd_raw
+        - trade_count
+        - trade_count_raw
+    TokenStatsCurrent:
+      type: object
+      properties:
+        chain:
+          type: string
+        token_layer_id:
+          type: string
+        token_address:
+          type: string
+        price_usd:
+          type: string
+          nullable: true
+        market_cap_usd:
+          type: string
+          nullable: true
+        market_cap_change_5m_pct:
+          type: string
+          nullable: true
+        market_cap_change_5m_abs:
+          type: string
+          nullable: true
+        market_cap_change_1h_pct:
+          type: string
+          nullable: true
+        market_cap_change_6h_pct:
+          type: string
+          nullable: true
+        market_cap_change_24h_pct:
+          type: string
+          nullable: true
+        market_cap_change_1h_abs:
+          type: string
+          nullable: true
+        market_cap_change_6h_abs:
+          type: string
+          nullable: true
+        market_cap_change_24h_abs:
+          type: string
+          nullable: true
+        price_change_5m_pct:
+          type: string
+          nullable: true
+        price_change_1h_pct:
+          type: string
+          nullable: true
+        price_change_6h_pct:
+          type: string
+          nullable: true
+        price_change_24h_pct:
+          type: string
+          nullable: true
+        price_change_5m_abs:
+          type: string
+          nullable: true
+        price_change_1h_abs:
+          type: string
+          nullable: true
+        price_change_6h_abs:
+          type: string
+          nullable: true
+        price_change_24h_abs:
+          type: string
+          nullable: true
+        volume_usd_5m:
+          type: string
+          nullable: true
+        volume_usd_1h:
+          type: string
+          nullable: true
+        volume_usd_6h:
+          type: string
+          nullable: true
+        volume_usd_24h:
+          type: string
+          nullable: true
+        volume_change_5m_abs:
+          type: string
+          nullable: true
+        volume_change_1h_abs:
+          type: string
+          nullable: true
+        volume_change_6h_abs:
+          type: string
+          nullable: true
+        volume_change_24h_abs:
+          type: string
+          nullable: true
+        volume_change_5m_pct:
+          type: string
+          nullable: true
+        volume_change_1h_pct:
+          type: string
+          nullable: true
+        volume_change_6h_pct:
+          type: string
+          nullable: true
+        volume_change_24h_pct:
+          type: string
+          nullable: true
+        holder_count:
+          type: string
+          nullable: true
+        holder_count_change_5m_abs:
+          type: string
+          nullable: true
+        holder_count_change_1h_abs:
+          type: string
+          nullable: true
+        holder_count_change_6h_abs:
+          type: string
+          nullable: true
+        holder_count_change_24h_abs:
+          type: string
+          nullable: true
+        holder_count_change_5m_pct:
+          type: string
+          nullable: true
+        holder_count_change_1h_pct:
+          type: string
+          nullable: true
+        holder_count_change_6h_pct:
+          type: string
+          nullable: true
+        holder_count_change_24h_pct:
+          type: string
+          nullable: true
+        last_trade_at:
+          type: string
+          nullable: true
+        last_trade_venue:
+          type: string
+          nullable: true
+        launchpad_price_usd:
+          type: string
+          nullable: true
+        launchpad_supply:
+          type: string
+          nullable: true
+        launchpad_supply_raw:
+          type: string
+          nullable: true
+        launchpad_tokens_left:
+          type: string
+          nullable: true
+        launchpad_tokens_left_raw:
+          type: string
+          nullable: true
+        launchpad_liquidity_usd:
+          type: string
+          nullable: true
+        launchpad_liquidity_usd_raw:
+          type: string
+          nullable: true
+        launchpad_progress_pct:
+          type: string
+          nullable: true
+        launchpad_progress_change_5m_abs:
+          type: string
+          nullable: true
+        launchpad_progress_change_1h_abs:
+          type: string
+          nullable: true
+        launchpad_progress_change_6h_abs:
+          type: string
+          nullable: true
+        launchpad_progress_change_24h_abs:
+          type: string
+          nullable: true
+        launchpad_progress_change_5m_pct:
+          type: string
+          nullable: true
+        launchpad_progress_change_1h_pct:
+          type: string
+          nullable: true
+        launchpad_progress_change_6h_pct:
+          type: string
+          nullable: true
+        launchpad_progress_change_24h_pct:
+          type: string
+          nullable: true
+        evt_block_number:
+          anyOf:
+            - type: string
+            - type: number
+            - nullable: true
+        updated_at:
+          type: string
+          nullable: true
+      required:
+        - chain
+        - token_layer_id
+        - token_address
+        - price_usd
+        - market_cap_usd
+        - market_cap_change_5m_pct
+        - market_cap_change_5m_abs
+        - market_cap_change_1h_pct
+        - market_cap_change_6h_pct
+        - market_cap_change_24h_pct
+        - market_cap_change_1h_abs
+        - market_cap_change_6h_abs
+        - market_cap_change_24h_abs
+        - price_change_5m_pct
+        - price_change_1h_pct
+        - price_change_6h_pct
+        - price_change_24h_pct
+        - price_change_5m_abs
+        - price_change_1h_abs
+        - price_change_6h_abs
+        - price_change_24h_abs
+        - volume_usd_5m
+        - volume_usd_1h
+        - volume_usd_6h
+        - volume_usd_24h
+        - volume_change_5m_abs
+        - volume_change_1h_abs
+        - volume_change_6h_abs
+        - volume_change_24h_abs
+        - volume_change_5m_pct
+        - volume_change_1h_pct
+        - volume_change_6h_pct
+        - volume_change_24h_pct
+        - holder_count
+        - holder_count_change_5m_abs
+        - holder_count_change_1h_abs
+        - holder_count_change_6h_abs
+        - holder_count_change_24h_abs
+        - holder_count_change_5m_pct
+        - holder_count_change_1h_pct
+        - holder_count_change_6h_pct
+        - holder_count_change_24h_pct
+        - last_trade_at
+        - last_trade_venue
+        - launchpad_price_usd
+        - launchpad_supply
+        - launchpad_supply_raw
+        - launchpad_tokens_left
+        - launchpad_tokens_left_raw
+        - launchpad_liquidity_usd
+        - launchpad_liquidity_usd_raw
+        - launchpad_progress_pct
+        - launchpad_progress_change_5m_abs
+        - launchpad_progress_change_1h_abs
+        - launchpad_progress_change_6h_abs
+        - launchpad_progress_change_24h_abs
+        - launchpad_progress_change_5m_pct
+        - launchpad_progress_change_1h_pct
+        - launchpad_progress_change_6h_pct
+        - launchpad_progress_change_24h_pct
+        - evt_block_number
+        - updated_at
     Builder:
       type: object
       properties:

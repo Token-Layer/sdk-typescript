@@ -73,6 +73,11 @@ export interface paths {
          *         - getUserFeeHistory
          *         - getLeaderboard
          *         - getUserPortfolio
+         *         - getTokenTrades
+         *         - getTokenTransfers
+         *         - getTokenActivity
+         *         - getTokenCandles
+         *         - getTokenStats
          */
         post: operations["getInfo"];
         delete?: never;
@@ -129,7 +134,7 @@ export interface components {
             code?: string;
             details?: unknown;
         };
-        InfoRequest: components["schemas"]["GetTokensV2InfoRequest"] | components["schemas"]["QuoteTokenInfoRequest"] | components["schemas"]["MeInfoRequest"] | components["schemas"]["GetPoolDataInfoRequest"] | components["schemas"]["GetUserBalanceInfoRequest"] | components["schemas"]["SearchTokenInfoRequest"] | components["schemas"]["CheckTokenOwnershipInfoRequest"] | components["schemas"]["GetUserFeesInfoRequest"] | components["schemas"]["GetUserFeeHistoryInfoRequest"] | components["schemas"]["GetLeaderboardInfoRequest"] | components["schemas"]["GetUserPortfolioInfoRequest"];
+        InfoRequest: components["schemas"]["GetTokensV2InfoRequest"] | components["schemas"]["QuoteTokenInfoRequest"] | components["schemas"]["MeInfoRequest"] | components["schemas"]["GetPoolDataInfoRequest"] | components["schemas"]["GetUserBalanceInfoRequest"] | components["schemas"]["SearchTokenInfoRequest"] | components["schemas"]["CheckTokenOwnershipInfoRequest"] | components["schemas"]["GetUserFeesInfoRequest"] | components["schemas"]["GetUserFeeHistoryInfoRequest"] | components["schemas"]["GetLeaderboardInfoRequest"] | components["schemas"]["GetUserPortfolioInfoRequest"] | components["schemas"]["GetTokenTradesInfoRequest"] | components["schemas"]["GetTokenTransfersInfoRequest"] | components["schemas"]["GetTokenActivityInfoRequest"] | components["schemas"]["GetTokenCandlesInfoRequest"] | components["schemas"]["GetTokenStatsInfoRequest"];
         InfoResponse: components["schemas"]["GetTokensV2InfoResponse"] | components["schemas"]["QuoteTokenInfoResponse"] | {
             /** @enum {string} */
             type: "me";
@@ -157,7 +162,7 @@ export interface components {
         } | {
             /** @enum {string} */
             type: "getUserPortfolio";
-        };
+        } | components["schemas"]["GetTokenTradesInfoResponse"] | components["schemas"]["GetTokenTransfersInfoResponse"] | components["schemas"]["GetTokenActivityInfoResponse"] | components["schemas"]["GetTokenCandlesInfoResponse"] | components["schemas"]["GetTokenStatsInfoResponse"];
         InfoError: {
             /** @enum {boolean} */
             success?: false;
@@ -712,6 +717,74 @@ export interface components {
             type: "getUserPortfolio";
             chains?: string[];
         };
+        GetTokenTradesInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getTokenTrades";
+            token_id: string;
+            /** @default 20 */
+            limit: number;
+            /** @default 0 */
+            offset: number;
+        };
+        GetTokenTransfersInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getTokenTransfers";
+            token_id: string;
+            /** @default 20 */
+            limit: number;
+            /** @default 0 */
+            offset: number;
+        };
+        GetTokenActivityInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getTokenActivity";
+            token_id: string;
+            /** @default 20 */
+            limit: number;
+            /** @default 0 */
+            offset: number;
+            include_activity_types?: ("trade" | "transfer" | "lp" | "lifecycle")[];
+            ignore_activity_types?: ("trade" | "transfer" | "lp" | "lifecycle")[];
+            include_activity_subtypes?: ("buy" | "sell" | "local" | "cross_chain_sent" | "cross_chain_received" | "deposit" | "withdrawal" | "graduation")[];
+            ignore_activity_subtypes?: ("buy" | "sell" | "local" | "cross_chain_sent" | "cross_chain_received" | "deposit" | "withdrawal" | "graduation")[];
+        };
+        GetTokenCandlesInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getTokenCandles";
+            token_id: string;
+            candle_interval?: components["schemas"]["CandleInterval"];
+            venue?: string;
+            /** Format: date-time */
+            from_timestamp?: string;
+            /** Format: date-time */
+            to_timestamp?: string;
+            /** @default 500 */
+            limit: number;
+            /** @default 0 */
+            offset: number;
+            /** @default true */
+            ascending: boolean;
+        };
+        GetTokenStatsInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getTokenStats";
+            token_id: string;
+        };
         /** Get Tokens V2 Response */
         GetTokensV2InfoResponse: {
             /** @enum {string} */
@@ -752,6 +825,36 @@ export interface components {
                 /** Format: date-time */
                 timestamp: string;
             };
+        };
+        GetTokenTradesInfoResponse: {
+            /** @enum {string} */
+            type: "getTokenTrades";
+            success: boolean;
+            activities: components["schemas"]["TokenTradeInfoItem"][];
+        };
+        GetTokenTransfersInfoResponse: {
+            /** @enum {string} */
+            type: "getTokenTransfers";
+            success: boolean;
+            activities: components["schemas"]["TokenTransferInfoItem"][];
+        };
+        GetTokenActivityInfoResponse: {
+            /** @enum {string} */
+            type: "getTokenActivity";
+            success: boolean;
+            activities: components["schemas"]["TokenActivityInfoItem"][];
+        };
+        GetTokenCandlesInfoResponse: {
+            /** @enum {string} */
+            type: "getTokenCandles";
+            success: boolean;
+            candles: components["schemas"]["TokenCandle"][];
+        };
+        GetTokenStatsInfoResponse: {
+            /** @enum {string} */
+            type: "getTokenStats";
+            success: boolean;
+            stats: components["schemas"]["TokenStatsCurrent"][];
         };
         /**
          * Register
@@ -1030,6 +1133,8 @@ export interface components {
          * @enum {string}
          */
         ChainSlug: "solana" | "solana-devnet" | "arbitrum" | "base" | "base-sepolia" | "avalanche" | "op-bnb" | "bnb" | "bnb-testnet" | "ethereum" | "monad" | "unichain" | "unichain-testnet" | "abstract" | "polygon" | "zksync" | "zksync-testnet";
+        /** @enum {string} */
+        CandleInterval: "1m" | "5m" | "15m" | "1h" | "4h" | "1d";
         /** @description Token with volume and trading metrics */
         TokenV2: {
             /** Format: uuid */
@@ -1065,6 +1170,187 @@ export interface components {
             offset: number;
             total_returned: number;
             has_more: boolean;
+        };
+        TokenTradeInfoItem: {
+            chain: string;
+            evt_block_number: string | number;
+            /** Format: date-time */
+            evt_block_time: string;
+            evt_tx_hash: string;
+            evt_index: string | number;
+            venue: string;
+            trade_type: string;
+            wallet: string;
+            token_address: string;
+            token_layer_id: string | null;
+            pool: string | null;
+            token_amount: string;
+            token_amount_raw: string;
+            usd_amount: string | null;
+            usd_amount_raw: string | null;
+            price_usd: string | null;
+            price_usd_raw: string | null;
+            market_cap_usd: string | null;
+            market_cap_usd_raw: string | null;
+            token_decimals: string | null;
+            quote_decimals: string | null;
+            token_decimals_source: string | null;
+            quote_decimals_source: string | null;
+        };
+        TokenTransferInfoItem: {
+            chain: string;
+            transfer_type: string;
+            evt_block_number: string | number;
+            /** Format: date-time */
+            evt_block_time: string;
+            evt_tx_hash: string;
+            evt_index: string | number;
+            token_layer_id: string | null;
+            token_address: string;
+            from_address: string | null;
+            to_address: string | null;
+            amount: string;
+            amount_raw: string;
+            amount_received_ld: string | null;
+            amount_received_ld_raw: string | null;
+            guid: string | null;
+            src_eid: string | null;
+            dst_eid: string | null;
+        };
+        TokenActivityInfoItem: {
+            chain: string;
+            /** @enum {string} */
+            activity_type: "trade" | "transfer" | "lp" | "lifecycle";
+            /** @enum {string} */
+            activity_subtype: "buy" | "sell" | "local" | "cross_chain_sent" | "cross_chain_received" | "deposit" | "withdrawal" | "graduation";
+            evt_block_number: string | number;
+            /** Format: date-time */
+            evt_block_time: string;
+            tx_hash: string;
+            evt_index: string | number;
+            token_layer_id: string | null;
+            token_id: string | null;
+            token_address: string;
+            wallet: string | null;
+            from_address: string | null;
+            to_address: string | null;
+            token_amount: string | null;
+            token_amount_raw: string | null;
+            usd_amount: string | null;
+            usd_amount_raw: string | null;
+            price_usd: string | null;
+            price_usd_raw: string | null;
+            market_cap_usd: string | null;
+            market_cap_usd_raw: string | null;
+            pool: string | null;
+            liquidity_amount: string | null;
+            liquidity_amount_raw: string | null;
+            amount0: string | null;
+            amount0_raw: string | null;
+            amount1: string | null;
+            amount1_raw: string | null;
+            guid: string | null;
+            src_eid: string | null;
+            dst_eid: string | null;
+            is_external: boolean | null;
+            final_supply: string | null;
+            final_supply_raw: string | null;
+            final_reserves: string | null;
+            final_reserves_raw: string | null;
+            token_decimals: string | null;
+            price_usd_at_event: string | null;
+            price_usd_at_event_raw: string | null;
+            usd_value: string | null;
+            usd_value_raw: string | null;
+        };
+        TokenCandle: {
+            chain: string;
+            token_layer_id: string;
+            token_address: string;
+            venue: string;
+            candle_interval: components["schemas"]["CandleInterval"] | string;
+            /** Format: date-time */
+            bucket_start: string;
+            /** Format: date-time */
+            bucket_end: string;
+            open_price_usd: string;
+            open_price_usd_raw: string;
+            high_price_usd: string;
+            high_price_usd_raw: string;
+            low_price_usd: string;
+            low_price_usd_raw: string;
+            close_price_usd: string;
+            close_price_usd_raw: string;
+            volume_token: string;
+            volume_token_raw: string;
+            volume_usd: string;
+            volume_usd_raw: string;
+            trade_count: string;
+            trade_count_raw: string;
+        };
+        TokenStatsCurrent: {
+            chain: string;
+            token_layer_id: string;
+            token_address: string;
+            price_usd: string | null;
+            market_cap_usd: string | null;
+            market_cap_change_5m_pct: string | null;
+            market_cap_change_5m_abs: string | null;
+            market_cap_change_1h_pct: string | null;
+            market_cap_change_6h_pct: string | null;
+            market_cap_change_24h_pct: string | null;
+            market_cap_change_1h_abs: string | null;
+            market_cap_change_6h_abs: string | null;
+            market_cap_change_24h_abs: string | null;
+            price_change_5m_pct: string | null;
+            price_change_1h_pct: string | null;
+            price_change_6h_pct: string | null;
+            price_change_24h_pct: string | null;
+            price_change_5m_abs: string | null;
+            price_change_1h_abs: string | null;
+            price_change_6h_abs: string | null;
+            price_change_24h_abs: string | null;
+            volume_usd_5m: string | null;
+            volume_usd_1h: string | null;
+            volume_usd_6h: string | null;
+            volume_usd_24h: string | null;
+            volume_change_5m_abs: string | null;
+            volume_change_1h_abs: string | null;
+            volume_change_6h_abs: string | null;
+            volume_change_24h_abs: string | null;
+            volume_change_5m_pct: string | null;
+            volume_change_1h_pct: string | null;
+            volume_change_6h_pct: string | null;
+            volume_change_24h_pct: string | null;
+            holder_count: string | null;
+            holder_count_change_5m_abs: string | null;
+            holder_count_change_1h_abs: string | null;
+            holder_count_change_6h_abs: string | null;
+            holder_count_change_24h_abs: string | null;
+            holder_count_change_5m_pct: string | null;
+            holder_count_change_1h_pct: string | null;
+            holder_count_change_6h_pct: string | null;
+            holder_count_change_24h_pct: string | null;
+            last_trade_at: string | null;
+            last_trade_venue: string | null;
+            launchpad_price_usd: string | null;
+            launchpad_supply: string | null;
+            launchpad_supply_raw: string | null;
+            launchpad_tokens_left: string | null;
+            launchpad_tokens_left_raw: string | null;
+            launchpad_liquidity_usd: string | null;
+            launchpad_liquidity_usd_raw: string | null;
+            launchpad_progress_pct: string | null;
+            launchpad_progress_change_5m_abs: string | null;
+            launchpad_progress_change_1h_abs: string | null;
+            launchpad_progress_change_6h_abs: string | null;
+            launchpad_progress_change_24h_abs: string | null;
+            launchpad_progress_change_5m_pct: string | null;
+            launchpad_progress_change_1h_pct: string | null;
+            launchpad_progress_change_6h_pct: string | null;
+            launchpad_progress_change_24h_pct: string | null;
+            evt_block_number: string | number | unknown;
+            updated_at: string | null;
         };
         /** @description Builder attribution information (optional). Includes address and fee in bps. */
         Builder: {

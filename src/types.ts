@@ -78,6 +78,11 @@ export type GetUserFeesInfoRequest = Schemas["GetUserFeesInfoRequest"];
 export type GetUserFeeHistoryInfoRequest = Schemas["GetUserFeeHistoryInfoRequest"];
 export type GetLeaderboardInfoRequest = Schemas["GetLeaderboardInfoRequest"];
 export type GetUserPortfolioInfoRequest = Schemas["GetUserPortfolioInfoRequest"];
+export type GetTokenTradesInfoRequest = Schemas["GetTokenTradesInfoRequest"];
+export type GetTokenTransfersInfoRequest = Schemas["GetTokenTransfersInfoRequest"];
+export type GetTokenActivityInfoRequest = Schemas["GetTokenActivityInfoRequest"];
+export type GetTokenCandlesInfoRequest = Schemas["GetTokenCandlesInfoRequest"];
+export type GetTokenStatsInfoRequest = Schemas["GetTokenStatsInfoRequest"];
 
 export type GetTokensV2InfoResponse = Schemas["GetTokensV2InfoResponse"];
 export type QuoteTokenInfoResponse = Schemas["QuoteTokenInfoResponse"];
@@ -92,51 +97,27 @@ export type ActivitySubtype =
   | "withdrawal"
   | "graduation";
 
-export interface GetTokenTradesInfoRequest {
-  type: "getTokenTrades";
-  token_id: string;
-  limit?: number;
-  offset?: number;
-}
-
-export interface GetTokenTransfersInfoRequest {
-  type: "getTokenTransfers";
-  token_id: string;
-  limit?: number;
-  offset?: number;
-}
-
-export interface GetTokenActivityInfoRequest {
-  type: "getTokenActivity";
-  token_id: string;
-  limit?: number;
-  offset?: number;
-  include_activity_types?: ActivityType[];
-  ignore_activity_types?: ActivityType[];
-  include_activity_subtypes?: ActivitySubtype[];
-  ignore_activity_subtypes?: ActivitySubtype[];
-}
-
-export interface GetTokenTradesInfoResponse {
-  type: "getTokenTrades";
-  success?: boolean;
-  activities?: unknown[];
-  [key: string]: unknown;
-}
-
-export interface GetTokenTransfersInfoResponse {
-  type: "getTokenTransfers";
-  success?: boolean;
-  activities?: unknown[];
-  [key: string]: unknown;
-}
-
-export interface GetTokenActivityInfoResponse {
-  type: "getTokenActivity";
-  success?: boolean;
-  activities?: unknown[];
-  [key: string]: unknown;
-}
+export type CandleInterval = NonNullable<
+  GetTokenCandlesInfoRequest["candle_interval"]
+>;
+export type GetTokenCandlesInfoResponse = Schemas["GetTokenCandlesInfoResponse"];
+export type GetTokenStatsInfoResponse = Schemas["GetTokenStatsInfoResponse"];
+export type GetTokenTradesInfoResponse = Schemas["GetTokenTradesInfoResponse"];
+export type GetTokenTransfersInfoResponse = Schemas["GetTokenTransfersInfoResponse"];
+export type GetTokenActivityInfoResponse = Schemas["GetTokenActivityInfoResponse"];
+export type TokenTradeInfoItem = NonNullable<
+  GetTokenTradesInfoResponse["activities"]
+>[number];
+export type TokenTransferInfoItem = NonNullable<
+  GetTokenTransfersInfoResponse["activities"]
+>[number];
+export type TokenActivityInfoItem = NonNullable<
+  GetTokenActivityInfoResponse["activities"]
+>[number];
+export type TokenCandle = NonNullable<GetTokenCandlesInfoResponse["candles"]>[number];
+export type TokenStatsCurrent = NonNullable<
+  GetTokenStatsInfoResponse["stats"]
+>[number];
 
 export type MeInfoResponse = Extract<InfoResponse, { type: "me" }>;
 export type GetPoolDataInfoResponse = Extract<
@@ -168,9 +149,11 @@ export type GetUserPortfolioInfoResponse = Extract<
 
 export type InfoError = Schemas["InfoError"];
 export type InfoRequest = Schemas["InfoRequest"] | GetTokenTradesInfoRequest |
-  GetTokenTransfersInfoRequest | GetTokenActivityInfoRequest;
+  GetTokenTransfersInfoRequest | GetTokenActivityInfoRequest |
+  GetTokenCandlesInfoRequest | GetTokenStatsInfoRequest;
 export type InfoResponse = Schemas["InfoResponse"] | GetTokenTradesInfoResponse |
-  GetTokenTransfersInfoResponse | GetTokenActivityInfoResponse;
+  GetTokenTransfersInfoResponse | GetTokenActivityInfoResponse |
+  GetTokenCandlesInfoResponse | GetTokenStatsInfoResponse;
 
 export type CreateTokenActionInput = CreateTokenAction;
 export type RegisterActionInput = RegisterAction;
@@ -317,3 +300,5 @@ export type GetUserPortfolioParams = Omit<GetUserPortfolioInfoRequest, "type">;
 export type GetTokenTradesParams = Omit<GetTokenTradesInfoRequest, "type">;
 export type GetTokenTransfersParams = Omit<GetTokenTransfersInfoRequest, "type">;
 export type GetTokenActivityParams = Omit<GetTokenActivityInfoRequest, "type">;
+export type GetTokenCandlesParams = Omit<GetTokenCandlesInfoRequest, "type">;
+export type GetTokenStatsParams = Omit<GetTokenStatsInfoRequest, "type">;

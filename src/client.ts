@@ -31,8 +31,12 @@ import type {
   GetLeaderboardParams,
   GetTokenActivityInfoResponse,
   GetTokenActivityParams,
+  GetTokenCandlesInfoResponse,
+  GetTokenCandlesParams,
   GetPoolDataInfoResponse,
   GetPoolDataParams,
+  GetTokenStatsInfoResponse,
+  GetTokenStatsParams,
   GetTokenTradesInfoResponse,
   GetTokenTradesParams,
   RegisterParams,
@@ -382,6 +386,38 @@ export class TokenLayerClient {
         }
         return payload;
       },
+      getTokenCandles: async (
+        params: GetTokenCandlesParams,
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetTokenCandlesInfoResponse> => {
+        const payload = await this.postInfo<GetTokenCandlesInfoResponse>(
+          this.infoUrl,
+          { type: "getTokenCandles", ...params },
+          this.resolveOptionalInfoAuth(authOverride, "getTokenCandles"),
+        );
+        if (payload.type !== "getTokenCandles") {
+          throw new Error(
+            `Unexpected type for info.getTokenCandles: ${String((payload as { type?: string }).type)}`,
+          );
+        }
+        return payload;
+      },
+      getTokenStats: async (
+        params: GetTokenStatsParams,
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetTokenStatsInfoResponse> => {
+        const payload = await this.postInfo<GetTokenStatsInfoResponse>(
+          this.infoUrl,
+          { type: "getTokenStats", ...params },
+          this.resolveOptionalInfoAuth(authOverride, "getTokenStats"),
+        );
+        if (payload.type !== "getTokenStats") {
+          throw new Error(
+            `Unexpected type for info.getTokenStats: ${String((payload as { type?: string }).type)}`,
+          );
+        }
+        return payload;
+      },
     };
   }
   public readonly info: {
@@ -435,6 +471,14 @@ export class TokenLayerClient {
       params: GetTokenActivityParams,
       authOverride?: TokenLayerAuth,
     ) => Promise<GetTokenActivityInfoResponse>;
+    getTokenCandles: (
+      params: GetTokenCandlesParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetTokenCandlesInfoResponse>;
+    getTokenStats: (
+      params: GetTokenStatsParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetTokenStatsInfoResponse>;
   };
 
   asWallet(
