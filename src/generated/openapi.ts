@@ -78,6 +78,7 @@ export interface paths {
          *         - getTokenActivity
          *         - getTokenCandles
          *         - getTokenStats
+         *         - getTokenAbout
          */
         post: operations["getInfo"];
         delete?: never;
@@ -134,7 +135,7 @@ export interface components {
             code?: string;
             details?: unknown;
         };
-        InfoRequest: components["schemas"]["GetTokensV2InfoRequest"] | components["schemas"]["QuoteTokenInfoRequest"] | components["schemas"]["MeInfoRequest"] | components["schemas"]["GetPoolDataInfoRequest"] | components["schemas"]["GetUserBalanceInfoRequest"] | components["schemas"]["SearchTokenInfoRequest"] | components["schemas"]["CheckTokenOwnershipInfoRequest"] | components["schemas"]["GetUserFeesInfoRequest"] | components["schemas"]["GetUserFeeHistoryInfoRequest"] | components["schemas"]["GetLeaderboardInfoRequest"] | components["schemas"]["GetUserPortfolioInfoRequest"] | components["schemas"]["GetTokenTradesInfoRequest"] | components["schemas"]["GetTokenTransfersInfoRequest"] | components["schemas"]["GetTokenActivityInfoRequest"] | components["schemas"]["GetTokenCandlesInfoRequest"] | components["schemas"]["GetTokenStatsInfoRequest"];
+        InfoRequest: components["schemas"]["GetTokensV2InfoRequest"] | components["schemas"]["QuoteTokenInfoRequest"] | components["schemas"]["MeInfoRequest"] | components["schemas"]["GetPoolDataInfoRequest"] | components["schemas"]["GetUserBalanceInfoRequest"] | components["schemas"]["SearchTokenInfoRequest"] | components["schemas"]["CheckTokenOwnershipInfoRequest"] | components["schemas"]["GetUserFeesInfoRequest"] | components["schemas"]["GetUserFeeHistoryInfoRequest"] | components["schemas"]["GetLeaderboardInfoRequest"] | components["schemas"]["GetUserPortfolioInfoRequest"] | components["schemas"]["GetTokenTradesInfoRequest"] | components["schemas"]["GetTokenTransfersInfoRequest"] | components["schemas"]["GetTokenActivityInfoRequest"] | components["schemas"]["GetTokenCandlesInfoRequest"] | components["schemas"]["GetTokenStatsInfoRequest"] | components["schemas"]["GetTokenAboutInfoRequest"];
         InfoResponse: components["schemas"]["GetTokensV2InfoResponse"] | components["schemas"]["QuoteTokenInfoResponse"] | {
             /** @enum {string} */
             type: "me";
@@ -162,7 +163,7 @@ export interface components {
         } | {
             /** @enum {string} */
             type: "getUserPortfolio";
-        } | components["schemas"]["GetTokenTradesInfoResponse"] | components["schemas"]["GetTokenTransfersInfoResponse"] | components["schemas"]["GetTokenActivityInfoResponse"] | components["schemas"]["GetTokenCandlesInfoResponse"] | components["schemas"]["GetTokenStatsInfoResponse"];
+        } | components["schemas"]["GetTokenTradesInfoResponse"] | components["schemas"]["GetTokenTransfersInfoResponse"] | components["schemas"]["GetTokenActivityInfoResponse"] | components["schemas"]["GetTokenCandlesInfoResponse"] | components["schemas"]["GetTokenStatsInfoResponse"] | components["schemas"]["GetTokenAboutInfoResponse"];
         InfoError: {
             /** @enum {boolean} */
             success?: false;
@@ -785,6 +786,14 @@ export interface components {
             type: "getTokenStats";
             token_id: string;
         };
+        GetTokenAboutInfoRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "getTokenAbout";
+            token_id: string;
+        };
         /** Get Tokens V2 Response */
         GetTokensV2InfoResponse: {
             /** @enum {string} */
@@ -855,6 +864,12 @@ export interface components {
             type: "getTokenStats";
             success: boolean;
             stats: components["schemas"]["TokenStatsCurrent"][];
+        };
+        GetTokenAboutInfoResponse: {
+            /** @enum {string} */
+            type: "getTokenAbout";
+            success: boolean;
+            token: components["schemas"]["TokenAbout"];
         };
         /**
          * Register
@@ -1229,9 +1244,10 @@ export interface components {
             tx_hash: string;
             evt_index: string | number;
             token_layer_id: string | null;
-            token_id: string | null;
             token_address: string;
             wallet: string | null;
+            trader: string | null;
+            receiver: string | null;
             from_address: string | null;
             to_address: string | null;
             token_amount: string | null;
@@ -1356,6 +1372,39 @@ export interface components {
             evt_block_number: string | number | unknown;
             updated_at: string | null;
         };
+        TokenAbout: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            token_id: string;
+            external_id: number | null;
+            external_provider_id: string | null;
+            name: string;
+            symbol: string;
+            slug: string;
+            description: string | null;
+            logo: string | null;
+            banner_url: string | null;
+            video_url: string | null;
+            graduated: boolean | null;
+            graduated_at: string | null;
+            token_layer_id: string | null;
+            origin_endpoint_id: number | null;
+            origin_chain: string | null;
+            builder_code: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            primary_evm_address: string | null;
+            primary_solana_address: string | null;
+            token_addresses: components["schemas"]["TokenAboutAddress"][];
+            registered_chains: components["schemas"]["TokenAboutRegisteredChain"][];
+            dex_pools: components["schemas"]["TokenAboutDexPool"][];
+            token_address_count: number;
+            registered_chain_count: number;
+            dex_pool_count: number;
+        } | null;
         /** @description Builder attribution information (optional). Includes address and fee in bps. */
         Builder: {
             /**
@@ -1386,6 +1435,62 @@ export interface components {
             dex_address: string | null;
             /** Format: date-time */
             created_at: string;
+        };
+        TokenAboutAddress: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            token_id: string;
+            chain: string;
+            platform_name: string;
+            address: string;
+            address_display: string | null;
+            /** @enum {string} */
+            address_type: "evm" | "sol";
+            decimals?: string | number | unknown;
+            confirmed?: boolean | null;
+            is_internal?: boolean;
+            is_registered: boolean;
+            stored_is_registered?: boolean;
+            eid?: number | null;
+            dex_name?: string | null;
+            dex_address?: string | null;
+            metadata?: unknown;
+            metadata_updated_at?: string | null;
+            /** Format: date-time */
+            created_at: string;
+        };
+        TokenAboutRegisteredChain: {
+            chain: string;
+            platform_name: string;
+            address: string;
+            address_display: string | null;
+            /** @enum {string} */
+            address_type: "evm" | "sol";
+            eid?: number | null;
+            is_registered: boolean;
+            is_origin_chain: boolean;
+            sources: string[];
+            source_events: string[];
+        };
+        TokenAboutDexPool: {
+            chain: string;
+            dex: string;
+            contract_address: string;
+            pool_address: string;
+            token_layer_id: string | null;
+            token_address: string;
+            token_a_address: string;
+            token_b_address: string;
+            token_a_token_layer_id: string | null;
+            token_b_token_layer_id: string | null;
+            fee: string | null;
+            initial_price: string | null;
+            tx_hash: string;
+            evt_block_number: string | number;
+            /** Format: date-time */
+            evt_block_time: string | null;
+            evt_index: string | number;
         };
     };
     responses: never;

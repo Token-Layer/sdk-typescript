@@ -124,6 +124,7 @@ paths:
             - getTokenActivity
             - getTokenCandles
             - getTokenStats
+            - getTokenAbout
       operationId: getInfo
       security:
         - BearerAuth: []
@@ -293,6 +294,7 @@ components:
         - $ref: "#/components/schemas/GetTokenActivityInfoRequest"
         - $ref: "#/components/schemas/GetTokenCandlesInfoRequest"
         - $ref: "#/components/schemas/GetTokenStatsInfoRequest"
+        - $ref: "#/components/schemas/GetTokenAboutInfoRequest"
       discriminator:
         propertyName: type
         mapping:
@@ -312,6 +314,7 @@ components:
           getTokenActivity: "#/components/schemas/GetTokenActivityInfoRequest"
           getTokenCandles: "#/components/schemas/GetTokenCandlesInfoRequest"
           getTokenStats: "#/components/schemas/GetTokenStatsInfoRequest"
+          getTokenAbout: "#/components/schemas/GetTokenAboutInfoRequest"
     InfoResponse:
       oneOf:
         - $ref: "#/components/schemas/GetTokensV2InfoResponse"
@@ -393,6 +396,7 @@ components:
         - $ref: "#/components/schemas/GetTokenActivityInfoResponse"
         - $ref: "#/components/schemas/GetTokenCandlesInfoResponse"
         - $ref: "#/components/schemas/GetTokenStatsInfoResponse"
+        - $ref: "#/components/schemas/GetTokenAboutInfoResponse"
     InfoError:
       type: object
       properties:
@@ -1368,6 +1372,19 @@ components:
       required:
         - type
         - token_id
+    GetTokenAboutInfoRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenAbout
+        token_id:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - token_id
     GetTokensV2InfoResponse:
       type: object
       properties:
@@ -1551,6 +1568,21 @@ components:
         - type
         - success
         - stats
+    GetTokenAboutInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getTokenAbout
+        success:
+          type: boolean
+        token:
+          $ref: "#/components/schemas/TokenAbout"
+      required:
+        - type
+        - success
+        - token
     RegisterAction:
       type: object
       properties:
@@ -2291,12 +2323,15 @@ components:
         token_layer_id:
           type: string
           nullable: true
-        token_id:
-          type: string
-          nullable: true
         token_address:
           type: string
         wallet:
+          type: string
+          nullable: true
+        trader:
+          type: string
+          nullable: true
+        receiver:
           type: string
           nullable: true
         from_address:
@@ -2398,9 +2433,10 @@ components:
         - tx_hash
         - evt_index
         - token_layer_id
-        - token_id
         - token_address
         - wallet
+        - trader
+        - receiver
         - from_address
         - to_address
         - token_amount
@@ -2769,6 +2805,116 @@ components:
         - launchpad_progress_change_24h_pct
         - evt_block_number
         - updated_at
+    TokenAbout:
+      type: object
+      nullable: true
+      properties:
+        id:
+          type: string
+          format: uuid
+        token_id:
+          type: string
+          format: uuid
+        external_id:
+          type: number
+          nullable: true
+        external_provider_id:
+          type: string
+          nullable: true
+        name:
+          type: string
+        symbol:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        logo:
+          type: string
+          nullable: true
+        banner_url:
+          type: string
+          nullable: true
+        video_url:
+          type: string
+          nullable: true
+        graduated:
+          type: boolean
+          nullable: true
+        graduated_at:
+          type: string
+          nullable: true
+        token_layer_id:
+          type: string
+          nullable: true
+        origin_endpoint_id:
+          type: integer
+          nullable: true
+        origin_chain:
+          type: string
+          nullable: true
+        builder_code:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        primary_evm_address:
+          type: string
+          nullable: true
+        primary_solana_address:
+          type: string
+          nullable: true
+        token_addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenAboutAddress"
+        registered_chains:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenAboutRegisteredChain"
+        dex_pools:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenAboutDexPool"
+        token_address_count:
+          type: integer
+        registered_chain_count:
+          type: integer
+        dex_pool_count:
+          type: integer
+      required:
+        - id
+        - token_id
+        - external_id
+        - external_provider_id
+        - name
+        - symbol
+        - slug
+        - description
+        - logo
+        - banner_url
+        - video_url
+        - graduated
+        - graduated_at
+        - token_layer_id
+        - origin_endpoint_id
+        - origin_chain
+        - builder_code
+        - created_at
+        - updated_at
+        - primary_evm_address
+        - primary_solana_address
+        - token_addresses
+        - registered_chains
+        - dex_pools
+        - token_address_count
+        - registered_chain_count
+        - dex_pool_count
     Builder:
       type: object
       properties:
@@ -2835,3 +2981,172 @@ components:
         - dex_address
         - created_at
       description: Token address on a specific blockchain
+    TokenAboutAddress:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        token_id:
+          type: string
+          format: uuid
+        chain:
+          type: string
+        platform_name:
+          type: string
+        address:
+          type: string
+        address_display:
+          type: string
+          nullable: true
+        address_type:
+          type: string
+          enum:
+            - evm
+            - sol
+        decimals:
+          anyOf:
+            - type: string
+            - type: number
+            - nullable: true
+        confirmed:
+          type: boolean
+          nullable: true
+        is_internal:
+          type: boolean
+        is_registered:
+          type: boolean
+        stored_is_registered:
+          type: boolean
+        eid:
+          type: integer
+          nullable: true
+        dex_name:
+          type: string
+          nullable: true
+        dex_address:
+          type: string
+          nullable: true
+        metadata:
+          nullable: true
+        metadata_updated_at:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - token_id
+        - chain
+        - platform_name
+        - address
+        - address_display
+        - address_type
+        - is_registered
+        - created_at
+    TokenAboutRegisteredChain:
+      type: object
+      properties:
+        chain:
+          type: string
+        platform_name:
+          type: string
+        address:
+          type: string
+        address_display:
+          type: string
+          nullable: true
+        address_type:
+          type: string
+          enum:
+            - evm
+            - sol
+        eid:
+          type: integer
+          nullable: true
+        is_registered:
+          type: boolean
+        is_origin_chain:
+          type: boolean
+        sources:
+          type: array
+          items:
+            type: string
+        source_events:
+          type: array
+          items:
+            type: string
+      required:
+        - chain
+        - platform_name
+        - address
+        - address_display
+        - address_type
+        - is_registered
+        - is_origin_chain
+        - sources
+        - source_events
+    TokenAboutDexPool:
+      type: object
+      properties:
+        chain:
+          type: string
+        dex:
+          type: string
+        contract_address:
+          type: string
+        pool_address:
+          type: string
+        token_layer_id:
+          type: string
+          nullable: true
+        token_address:
+          type: string
+        token_a_address:
+          type: string
+        token_b_address:
+          type: string
+        token_a_token_layer_id:
+          type: string
+          nullable: true
+        token_b_token_layer_id:
+          type: string
+          nullable: true
+        fee:
+          type: string
+          nullable: true
+        initial_price:
+          type: string
+          nullable: true
+        tx_hash:
+          type: string
+        evt_block_number:
+          anyOf:
+            - type: string
+            - type: number
+        evt_block_time:
+          type: string
+          nullable: true
+          format: date-time
+        evt_index:
+          anyOf:
+            - type: string
+            - type: number
+      required:
+        - chain
+        - dex
+        - contract_address
+        - pool_address
+        - token_layer_id
+        - token_address
+        - token_a_address
+        - token_b_address
+        - token_a_token_layer_id
+        - token_b_token_layer_id
+        - fee
+        - initial_price
+        - tx_hash
+        - evt_block_number
+        - evt_block_time
+        - evt_index

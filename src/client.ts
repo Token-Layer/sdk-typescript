@@ -31,6 +31,8 @@ import type {
   GetLeaderboardParams,
   GetTokenActivityInfoResponse,
   GetTokenActivityParams,
+  GetTokenAboutInfoResponse,
+  GetTokenAboutParams,
   GetTokenCandlesInfoResponse,
   GetTokenCandlesParams,
   GetPoolDataInfoResponse,
@@ -418,6 +420,22 @@ export class TokenLayerClient {
         }
         return payload;
       },
+      getTokenAbout: async (
+        params: GetTokenAboutParams,
+        authOverride?: TokenLayerAuth,
+      ): Promise<GetTokenAboutInfoResponse> => {
+        const payload = await this.postInfo<GetTokenAboutInfoResponse>(
+          this.infoUrl,
+          { type: "getTokenAbout", ...params },
+          this.resolveOptionalInfoAuth(authOverride, "getTokenAbout"),
+        );
+        if (payload.type !== "getTokenAbout") {
+          throw new Error(
+            `Unexpected type for info.getTokenAbout: ${String((payload as { type?: string }).type)}`,
+          );
+        }
+        return payload;
+      },
     };
   }
   public readonly info: {
@@ -479,6 +497,10 @@ export class TokenLayerClient {
       params: GetTokenStatsParams,
       authOverride?: TokenLayerAuth,
     ) => Promise<GetTokenStatsInfoResponse>;
+    getTokenAbout: (
+      params: GetTokenAboutParams,
+      authOverride?: TokenLayerAuth,
+    ) => Promise<GetTokenAboutInfoResponse>;
   };
 
   asWallet(

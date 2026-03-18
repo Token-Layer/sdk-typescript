@@ -83,6 +83,7 @@ export type GetTokenTransfersInfoRequest = Schemas["GetTokenTransfersInfoRequest
 export type GetTokenActivityInfoRequest = Schemas["GetTokenActivityInfoRequest"];
 export type GetTokenCandlesInfoRequest = Schemas["GetTokenCandlesInfoRequest"];
 export type GetTokenStatsInfoRequest = Schemas["GetTokenStatsInfoRequest"];
+export type GetTokenAboutInfoRequest = Schemas["GetTokenAboutInfoRequest"];
 
 export type GetTokensV2InfoResponse = Schemas["GetTokensV2InfoResponse"];
 export type QuoteTokenInfoResponse = Schemas["QuoteTokenInfoResponse"];
@@ -102,6 +103,7 @@ export type CandleInterval = NonNullable<
 >;
 export type GetTokenCandlesInfoResponse = Schemas["GetTokenCandlesInfoResponse"];
 export type GetTokenStatsInfoResponse = Schemas["GetTokenStatsInfoResponse"];
+export type GetTokenAboutInfoResponse = Schemas["GetTokenAboutInfoResponse"];
 export type GetTokenTradesInfoResponse = Schemas["GetTokenTradesInfoResponse"];
 export type GetTokenTransfersInfoResponse = Schemas["GetTokenTransfersInfoResponse"];
 export type GetTokenActivityInfoResponse = Schemas["GetTokenActivityInfoResponse"];
@@ -150,10 +152,12 @@ export type GetUserPortfolioInfoResponse = Extract<
 export type InfoError = Schemas["InfoError"];
 export type InfoRequest = Schemas["InfoRequest"] | GetTokenTradesInfoRequest |
   GetTokenTransfersInfoRequest | GetTokenActivityInfoRequest |
-  GetTokenCandlesInfoRequest | GetTokenStatsInfoRequest;
+  GetTokenCandlesInfoRequest | GetTokenStatsInfoRequest |
+  GetTokenAboutInfoRequest;
 export type InfoResponse = Schemas["InfoResponse"] | GetTokenTradesInfoResponse |
   GetTokenTransfersInfoResponse | GetTokenActivityInfoResponse |
-  GetTokenCandlesInfoResponse | GetTokenStatsInfoResponse;
+  GetTokenCandlesInfoResponse | GetTokenStatsInfoResponse |
+  GetTokenAboutInfoResponse;
 
 export type CreateTokenActionInput = CreateTokenAction;
 export type RegisterActionInput = RegisterAction;
@@ -302,3 +306,4 @@ export type GetTokenTransfersParams = Omit<GetTokenTransfersInfoRequest, "type">
 export type GetTokenActivityParams = Omit<GetTokenActivityInfoRequest, "type">;
 export type GetTokenCandlesParams = Omit<GetTokenCandlesInfoRequest, "type">;
 export type GetTokenStatsParams = Omit<GetTokenStatsInfoRequest, "type">;
+export type GetTokenAboutParams = Omit<GetTokenAboutInfoRequest, "type">;
