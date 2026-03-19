@@ -12,6 +12,7 @@ import {
   signInfoAuthRequest,
   signRegisterRequest,
 } from "./eip712.js";
+import { TokenLayerWebsocketClient } from "./websocket.js";
 import type {
   ClaimRewardsParams,
   ClaimRewardsResponse,
@@ -68,6 +69,7 @@ import type {
   SendTransactionResponse,
   TokenLayerAuth,
   TokenLayerClientOptions,
+  TokenLayerWebsocketClientOptions,
   TokenLayerDefaults,
   TokenLayerErrorResponse,
   TradeTokenParams,
@@ -122,6 +124,17 @@ function normalizeApiBaseUrl(baseUrl: string): string {
     return clean.slice(0, -"/info".length);
   }
   return clean;
+}
+
+function defaultWebsocketUrl(baseUrl: string): string {
+  const clean = normalizeApiBaseUrl(baseUrl);
+  if (clean.startsWith("https://")) {
+    return `wss://${clean.slice("https://".length)}/ws`;
+  }
+  if (clean.startsWith("http://")) {
+    return `ws://${clean.slice("http://".length)}/ws`;
+  }
+  return `${clean}/ws`;
 }
 
 export class TokenLayerClient {
@@ -547,6 +560,14 @@ export class TokenLayerClient {
       rpcByChainId: this.rpcByChainId,
       rpcByChainSlug: this.rpcByChainSlug,
       auth: { type: "apiKey", token },
+    });
+  }
+
+  websocket(options: TokenLayerWebsocketClientOptions = {}): TokenLayerWebsocketClient {
+    return new TokenLayerWebsocketClient({
+      url: options.url || defaultWebsocketUrl(this.infoUrl),
+      auth: options.auth || this.auth,
+      webSocketFactory: options.webSocketFactory,
     });
   }
 

@@ -244,6 +244,20 @@ export interface TokenLayerClientOptions {
   rpcByChainSlug?: Record<string, string>;
 }
 
+export interface TokenLayerWebsocketClientOptions {
+  url?: string;
+  auth?: TokenLayerAuth;
+  webSocketFactory?: (url: string) => {
+    readyState: number;
+    onopen: ((event: unknown) => void) | null;
+    onmessage: ((event: { data: string }) => void) | null;
+    onerror: ((event: unknown) => void) | null;
+    onclose: ((event: unknown) => void) | null;
+    send(data: string): void;
+    close(code?: number, reason?: string): void;
+  };
+}
+
 export interface RegisterParams {
   walletAddress?: Address;
   source?: TokenLayerSource;

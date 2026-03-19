@@ -12,14 +12,15 @@ export {
   TokenLayer,
   TokenLayerClient,
 } from "./client.js";
+export { TokenLayerWebsocketClient } from "./websocket.js";
 export type {
   components,
   operations,
   paths,
 } from "./generated/openapi.js";
 export type {
-  ClaimRewardsAction,
   CandleInterval,
+  ClaimRewardsAction,
   ClaimRewardsLayerRequest,
   ClaimRewardsParams,
   ClaimRewardsResponse,
@@ -56,10 +57,10 @@ export type {
   GetTokenAboutInfoRequest,
   GetTokenAboutInfoResponse,
   GetTokenAboutParams,
-  GetPoolDataInfoRequest,
   GetTokenStatsInfoRequest,
   GetTokenStatsInfoResponse,
   GetTokenStatsParams,
+  GetPoolDataInfoRequest,
   GetPoolDataInfoResponse,
   GetPoolDataParams,
   GetTokenTradesInfoRequest,
@@ -113,15 +114,16 @@ export type {
   TokenLayerError,
   TokenLayerAuth,
   TokenLayerClientOptions,
+  TokenLayerWebsocketClientOptions,
   TokenLayerErrorResponse,
   TokenLayerRequest,
   TokenLayerResponse,
   TokenLayerSource,
   TokenLayerSuccessResponse,
-  TradeTokenAction,
-  TradeTokenLayerRequest,
   TokenCandle,
   TokenStatsCurrent,
+  TradeTokenAction,
+  TradeTokenLayerRequest,
   TradeTokenParams,
   TradeTokenResponse,
   TransferTokenAction,
@@ -129,3 +131,9 @@ export type {
   TransferTokenParams,
   TransferTokenResponse,
 } from "./types.js";
+export type {
+  TokenActivityEventData,
+  TokenActivityEventMessage,
+  TokenActivitySubscriptionOptions,
+  WebSocketLike,
+} from "./websocket.js";

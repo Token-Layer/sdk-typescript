@@ -2,6 +2,8 @@
 
 TypeScript SDK for `POST /token-layer` and `POST /info`.
 
+Also includes a beta WebSocket helper for `tokenActivity` streams.
+
 ## Install
 
 ```bash
@@ -107,6 +109,7 @@ const apiKeyTl = base.asApiKey(apiKey);
 - `info.getUserFeeHistory(params?)` (JWT/API key auth)
 - `info.getLeaderboard(params?)` (no auth required)
 - `info.getUserPortfolio(params?)` (JWT/API key auth)
+- `websocket(options?)`
 - `asWallet(walletClient, opts?)`
 - `asJwt(token)`
 - `asApiKey(token)`
@@ -196,3 +199,37 @@ Requests throw `TokenLayerApiError` with:
 - `code`
 - `details`
 - `message`
+
+## WebSocket beta
+
+```ts
+import { TokenLayer } from "@token-layer/sdk-typescript";
+
+const tokenLayer = new TokenLayer({
+  baseUrl: "https://api.tokenlayer.network/functions/v1",
+  auth: { type: "apiKey", token: process.env.TL_API_KEY! },
+});
+
+const ws = tokenLayer.websocket({
+  url: "ws://127.0.0.1:8080/ws",
+});
+
+await ws.connect();
+
+await ws.subscribeTokenActivity({
+  tokenId: "your-token-layer-id",
+  chains: ["base-sepolia"],
+  cursor: "latest",
+  onEvent(event) {
+    console.log(event.seq, event.data.activity_type);
+  },
+});
+```
+
+Current WebSocket helper support:
+
+- auth via API key or JWT
+- `tokenActivity` subscription
+- event-stream cursors via `cursor`, `sinceTimestamp`, and `batchSize`
+
+Wallet-authenticated websocket sessions are not implemented yet.
