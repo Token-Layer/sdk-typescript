@@ -19,6 +19,7 @@ export type {
 } from "./generated/openapi.js";
 export type {
   ClaimRewardsAction,
+  CandleInterval,
   ClaimRewardsLayerRequest,
   ClaimRewardsParams,
   ClaimRewardsResponse,
@@ -116,6 +117,8 @@ export type {
   TokenLayerSuccessResponse,
   TradeTokenAction,
   TradeTokenLayerRequest,
+  TokenCandle,
+  TokenStatsCurrent,
   TradeTokenParams,
   TradeTokenResponse,
   TransferTokenAction,
