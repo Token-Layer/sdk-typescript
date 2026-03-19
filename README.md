@@ -217,8 +217,10 @@ const ws = tokenLayer.websocket({
 await ws.connect();
 
 await ws.subscribeTokenActivity({
-  tokenId: "your-token-layer-id",
+  tokenIds: ["your-token-layer-id"],
   chains: ["base-sepolia"],
+  activityTypes: ["trade"],
+  activitySubtypes: ["buy", "sell"],
   cursor: "latest",
   onEvent(event) {
     console.log(event.seq, event.data.activity_type);
@@ -230,6 +232,7 @@ Current WebSocket helper support:
 
 - auth via API key or JWT
 - `tokenActivity` subscription
+- optional filters for `tokenIds`, `chains`, `activityTypes`, and `activitySubtypes`
 - event-stream cursors via `cursor`, `sinceTimestamp`, and `batchSize`
 
 Wallet-authenticated websocket sessions are not implemented yet.

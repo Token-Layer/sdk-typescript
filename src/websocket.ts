@@ -1,8 +1,11 @@
-import type { TokenLayerAuth } from "./types.js";
+import type { ActivitySubtype, ActivityType, TokenLayerAuth } from "./types.js";
 
 export interface TokenActivitySubscriptionOptions {
-  tokenId: string;
+  tokenId?: string;
+  tokenIds?: string[];
   chains?: string[];
+  activityTypes?: ActivityType[];
+  activitySubtypes?: ActivitySubtype[];
   cursor?: "latest" | "earliest" | number;
   sinceTimestamp?: string;
   batchSize?: number;
@@ -209,7 +212,10 @@ export class TokenLayerWebsocketClient {
         subscription: {
           topic: "tokenActivity",
           tokenId: options.tokenId,
+          tokenIds: options.tokenIds,
           chains: options.chains,
+          activityTypes: options.activityTypes,
+          activitySubtypes: options.activitySubtypes,
           cursor: options.cursor,
           sinceTimestamp: options.sinceTimestamp,
           batchSize: options.batchSize,
