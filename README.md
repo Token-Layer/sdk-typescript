@@ -232,7 +232,12 @@ Current WebSocket helper support:
 
 - auth via API key or JWT
 - `tokenActivity` subscription
+- `walletBalances` subscription
+- `walletFees` subscription
 - optional filters for `tokenIds`, `chains`, `activityTypes`, and `activitySubtypes`
+- optional wallet balance filters for `wallet`, `wallets`, `tokenId`, `tokenIds`, and `chains`
+- optional wallet fee filters for `wallet`, `wallets`, `currency`, `currencies`, `activityIds`, `distributionTypes`, and `chains`
 - event-stream cursors via `cursor`, `sinceTimestamp`, and `batchSize`
+- automatic reconnect and resubscribe with resume from the last seen `seq`
 
 Wallet-authenticated websocket sessions are not implemented yet.
