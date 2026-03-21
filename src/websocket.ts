@@ -39,6 +39,7 @@ export interface WalletFeeSubscriptionOptions {
 }
 
 export interface TokenActivityEventData {
+  pk?: string;
   chain?: string;
   activity_type?: string;
   activity_subtype?: string;
