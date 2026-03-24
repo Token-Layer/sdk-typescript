@@ -355,14 +355,7 @@ components:
         - $ref: "#/components/schemas/GetUserFeesInfoResponse"
         - $ref: "#/components/schemas/GetUserFeeHistoryInfoResponse"
         - $ref: "#/components/schemas/GetLeaderboardInfoResponse"
-        - type: object
-          properties:
-            type:
-              type: string
-              enum:
-                - getUserPortfolio
-          required:
-            - type
+        - $ref: "#/components/schemas/GetUserPortfolioInfoResponse"
         - $ref: "#/components/schemas/GetTokenTradesInfoResponse"
         - $ref: "#/components/schemas/GetTokenTransfersInfoResponse"
         - $ref: "#/components/schemas/GetTokenActivityInfoResponse"
@@ -1605,6 +1598,98 @@ components:
           required:
             - leaderboard
             - pagination
+      required:
+        - type
+        - success
+        - data
+    GetUserPortfolioInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getUserPortfolio
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            tokens:
+              type: array
+              items:
+                type: object
+                properties:
+                  tokenId:
+                    type: string
+                  name:
+                    type: string
+                  symbol:
+                    type: string
+                  slug:
+                    type: string
+                  logo:
+                    type: string
+                  tokenLayerId:
+                    type: string
+                  totalBalanceUsd:
+                    type: number
+                  chainBalances:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        chain:
+                          type: string
+                        chainSlug:
+                          type: string
+                        balance:
+                          type: string
+                        balanceFormatted:
+                          type: string
+                        walletAddress:
+                          type: string
+                        tokenAddress:
+                          type: string
+                        decimals:
+                          type: number
+                        eid:
+                          type: number
+                        createdAt:
+                          type: string
+                        priceUsd:
+                          type: number
+                        valueUsd:
+                          type: number
+                      required:
+                        - chain
+                        - chainSlug
+                        - balance
+                        - balanceFormatted
+                        - walletAddress
+                        - tokenAddress
+                        - decimals
+                  availableChains:
+                    type: array
+                    items:
+                      type: string
+                  firstAcquired:
+                    type: string
+                required:
+                  - tokenId
+                  - name
+                  - symbol
+                  - slug
+                  - totalBalanceUsd
+                  - chainBalances
+                  - availableChains
+            totalValueUsd:
+              type: number
+            totalTokensCount:
+              type: number
+          required:
+            - tokens
+            - totalValueUsd
+            - totalTokensCount
       required:
         - type
         - success

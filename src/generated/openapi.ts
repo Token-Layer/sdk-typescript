@@ -148,10 +148,7 @@ export interface components {
         } | components["schemas"]["SearchTokenInfoResponse"] | {
             /** @enum {string} */
             type: "checkTokenOwnership";
-        } | components["schemas"]["GetUserFeesInfoResponse"] | components["schemas"]["GetUserFeeHistoryInfoResponse"] | components["schemas"]["GetLeaderboardInfoResponse"] | {
-            /** @enum {string} */
-            type: "getUserPortfolio";
-        } | components["schemas"]["GetTokenTradesInfoResponse"] | components["schemas"]["GetTokenTransfersInfoResponse"] | components["schemas"]["GetTokenActivityInfoResponse"] | components["schemas"]["GetTokenCandlesInfoResponse"] | components["schemas"]["GetTokenStatsInfoResponse"] | components["schemas"]["GetTokenAboutInfoResponse"];
+        } | components["schemas"]["GetUserFeesInfoResponse"] | components["schemas"]["GetUserFeeHistoryInfoResponse"] | components["schemas"]["GetLeaderboardInfoResponse"] | components["schemas"]["GetUserPortfolioInfoResponse"] | components["schemas"]["GetTokenTradesInfoResponse"] | components["schemas"]["GetTokenTransfersInfoResponse"] | components["schemas"]["GetTokenActivityInfoResponse"] | components["schemas"]["GetTokenCandlesInfoResponse"] | components["schemas"]["GetTokenStatsInfoResponse"] | components["schemas"]["GetTokenAboutInfoResponse"];
         InfoError: {
             /** @enum {boolean} */
             success?: false;
@@ -874,6 +871,39 @@ export interface components {
                     total: number;
                     has_more: boolean;
                 };
+            };
+        };
+        GetUserPortfolioInfoResponse: {
+            /** @enum {string} */
+            type: "getUserPortfolio";
+            success: boolean;
+            data: {
+                tokens: {
+                    tokenId: string;
+                    name: string;
+                    symbol: string;
+                    slug: string;
+                    logo?: string;
+                    tokenLayerId?: string;
+                    totalBalanceUsd: number;
+                    chainBalances: {
+                        chain: string;
+                        chainSlug: string;
+                        balance: string;
+                        balanceFormatted: string;
+                        walletAddress: string;
+                        tokenAddress: string;
+                        decimals: number;
+                        eid?: number;
+                        createdAt?: string;
+                        priceUsd?: number;
+                        valueUsd?: number;
+                    }[];
+                    availableChains: string[];
+                    firstAcquired?: string;
+                }[];
+                totalValueUsd: number;
+                totalTokensCount: number;
             };
         };
         GetTokenTradesInfoResponse: {
