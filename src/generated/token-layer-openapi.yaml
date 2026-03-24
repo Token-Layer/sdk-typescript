@@ -343,14 +343,7 @@ components:
                 - getUserBalance
           required:
             - type
-        - type: object
-          properties:
-            type:
-              type: string
-              enum:
-                - searchToken
-          required:
-            - type
+        - $ref: "#/components/schemas/SearchTokenInfoResponse"
         - type: object
           properties:
             type:
@@ -359,22 +352,8 @@ components:
                 - checkTokenOwnership
           required:
             - type
-        - type: object
-          properties:
-            type:
-              type: string
-              enum:
-                - getUserFees
-          required:
-            - type
-        - type: object
-          properties:
-            type:
-              type: string
-              enum:
-                - getUserFeeHistory
-          required:
-            - type
+        - $ref: "#/components/schemas/GetUserFeesInfoResponse"
+        - $ref: "#/components/schemas/GetUserFeeHistoryInfoResponse"
         - type: object
           properties:
             type:
@@ -1483,6 +1462,77 @@ components:
         - success
         - data
       title: Quote Token Response
+    SearchTokenInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - searchToken
+        success:
+          type: boolean
+        token:
+          $ref: "#/components/schemas/TokenAbout"
+        error:
+          type: string
+      required:
+        - type
+        - success
+        - token
+    GetUserFeesInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getUserFees
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            balances:
+              type: array
+              items:
+                $ref: "#/components/schemas/UserFeeBalanceViewItem"
+            summary:
+              $ref: "#/components/schemas/UserFeesSummary"
+          required:
+            - balances
+            - summary
+      required:
+        - type
+        - success
+        - data
+    GetUserFeeHistoryInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getUserFeeHistory
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            distributions:
+              type: array
+              items:
+                $ref: "#/components/schemas/UserFeeHistoryItem"
+            total_count:
+              type: integer
+              minimum: 0
+            pagination:
+              $ref: "#/components/schemas/UserFeeHistoryPagination"
+          required:
+            - distributions
+            - total_count
+            - pagination
+      required:
+        - type
+        - success
+        - data
     GetTokenTradesInfoResponse:
       type: object
       properties:
@@ -2126,6 +2176,262 @@ components:
         - total_returned
         - has_more
       description: Pagination information
+    TokenAbout:
+      type: object
+      nullable: true
+      properties:
+        id:
+          type: string
+          format: uuid
+        token_id:
+          type: string
+          format: uuid
+        external_id:
+          type: number
+          nullable: true
+        external_provider_id:
+          type: string
+          nullable: true
+        name:
+          type: string
+        symbol:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        logo:
+          type: string
+          nullable: true
+        banner_url:
+          type: string
+          nullable: true
+        video_url:
+          type: string
+          nullable: true
+        graduated:
+          type: boolean
+          nullable: true
+        graduated_at:
+          type: string
+          nullable: true
+        token_layer_id:
+          type: string
+          nullable: true
+        origin_endpoint_id:
+          type: integer
+          nullable: true
+        origin_chain:
+          type: string
+          nullable: true
+        builder_code:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        primary_evm_address:
+          type: string
+          nullable: true
+        primary_solana_address:
+          type: string
+          nullable: true
+        token_addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenAboutAddress"
+        registered_chains:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenAboutRegisteredChain"
+        dex_pools:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenAboutDexPool"
+        token_address_count:
+          type: integer
+        registered_chain_count:
+          type: integer
+        dex_pool_count:
+          type: integer
+      required:
+        - id
+        - token_id
+        - external_id
+        - external_provider_id
+        - name
+        - symbol
+        - slug
+        - description
+        - logo
+        - banner_url
+        - video_url
+        - graduated
+        - graduated_at
+        - token_layer_id
+        - origin_endpoint_id
+        - origin_chain
+        - builder_code
+        - created_at
+        - updated_at
+        - primary_evm_address
+        - primary_solana_address
+        - token_addresses
+        - registered_chains
+        - dex_pools
+        - token_address_count
+        - registered_chain_count
+        - dex_pool_count
+    UserFeeBalanceViewItem:
+      type: object
+      properties:
+        account:
+          type: string
+        token_key:
+          type: string
+        token_layer_id:
+          type: string
+          nullable: true
+        token_name:
+          type: string
+          nullable: true
+        token_symbol:
+          type: string
+          nullable: true
+        balance:
+          type: string
+          nullable: true
+        total_received:
+          type: string
+          nullable: true
+        per_chain_balances:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/UserFeeBalancePerChain"
+          default: {}
+        last_updated_at:
+          type: string
+          nullable: true
+      required:
+        - account
+        - token_key
+        - token_layer_id
+        - token_name
+        - token_symbol
+        - balance
+        - total_received
+        - last_updated_at
+    UserFeesSummary:
+      type: object
+      properties:
+        total_traders_referred:
+          type: integer
+          minimum: 0
+        total_rewards_earned_usd:
+          type: string
+        total_claimable_usd:
+          type: string
+      required:
+        - total_traders_referred
+        - total_rewards_earned_usd
+        - total_claimable_usd
+    UserFeeHistoryItem:
+      type: object
+      properties:
+        chain:
+          type: string
+        evt_block_number:
+          anyOf:
+            - type: string
+            - type: number
+        evt_block_time:
+          type: string
+          format: date-time
+        evt_tx_hash:
+          type: string
+        evt_index:
+          anyOf:
+            - type: string
+            - type: number
+        account:
+          type: string
+        currency:
+          type: string
+        token_layer_id:
+          type: string
+          nullable: true
+        token_address:
+          type: string
+        token_name:
+          type: string
+          nullable: true
+        token_symbol:
+          type: string
+          nullable: true
+        token_decimals:
+          type: number
+          nullable: true
+        amount:
+          type: string
+          nullable: true
+        amount_raw:
+          type: string
+          nullable: true
+        distribution_type:
+          type: integer
+        distribution_name:
+          type: string
+        tracking_id:
+          type: string
+          nullable: true
+        activity_id:
+          type: integer
+        activity_name:
+          type: string
+      required:
+        - chain
+        - evt_block_number
+        - evt_block_time
+        - evt_tx_hash
+        - evt_index
+        - account
+        - currency
+        - token_layer_id
+        - token_address
+        - token_name
+        - token_symbol
+        - token_decimals
+        - amount
+        - amount_raw
+        - distribution_type
+        - distribution_name
+        - tracking_id
+        - activity_id
+        - activity_name
+    UserFeeHistoryPagination:
+      type: object
+      properties:
+        limit:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+        offset:
+          type: integer
+          minimum: 0
+        total:
+          type: integer
+          minimum: 0
+        has_more:
+          type: boolean
+      required:
+        - limit
+        - offset
+        - total
+        - has_more
     TokenTradeInfoItem:
       type: object
       properties:
@@ -2287,6 +2593,8 @@ components:
     TokenActivityInfoItem:
       type: object
       properties:
+        pk:
+          type: string
         chain:
           type: string
         activity_type:
@@ -2425,6 +2733,7 @@ components:
           type: string
           nullable: true
       required:
+        - pk
         - chain
         - activity_type
         - activity_subtype
@@ -2805,116 +3114,6 @@ components:
         - launchpad_progress_change_24h_pct
         - evt_block_number
         - updated_at
-    TokenAbout:
-      type: object
-      nullable: true
-      properties:
-        id:
-          type: string
-          format: uuid
-        token_id:
-          type: string
-          format: uuid
-        external_id:
-          type: number
-          nullable: true
-        external_provider_id:
-          type: string
-          nullable: true
-        name:
-          type: string
-        symbol:
-          type: string
-        slug:
-          type: string
-        description:
-          type: string
-          nullable: true
-        logo:
-          type: string
-          nullable: true
-        banner_url:
-          type: string
-          nullable: true
-        video_url:
-          type: string
-          nullable: true
-        graduated:
-          type: boolean
-          nullable: true
-        graduated_at:
-          type: string
-          nullable: true
-        token_layer_id:
-          type: string
-          nullable: true
-        origin_endpoint_id:
-          type: integer
-          nullable: true
-        origin_chain:
-          type: string
-          nullable: true
-        builder_code:
-          type: string
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        primary_evm_address:
-          type: string
-          nullable: true
-        primary_solana_address:
-          type: string
-          nullable: true
-        token_addresses:
-          type: array
-          items:
-            $ref: "#/components/schemas/TokenAboutAddress"
-        registered_chains:
-          type: array
-          items:
-            $ref: "#/components/schemas/TokenAboutRegisteredChain"
-        dex_pools:
-          type: array
-          items:
-            $ref: "#/components/schemas/TokenAboutDexPool"
-        token_address_count:
-          type: integer
-        registered_chain_count:
-          type: integer
-        dex_pool_count:
-          type: integer
-      required:
-        - id
-        - token_id
-        - external_id
-        - external_provider_id
-        - name
-        - symbol
-        - slug
-        - description
-        - logo
-        - banner_url
-        - video_url
-        - graduated
-        - graduated_at
-        - token_layer_id
-        - origin_endpoint_id
-        - origin_chain
-        - builder_code
-        - created_at
-        - updated_at
-        - primary_evm_address
-        - primary_solana_address
-        - token_addresses
-        - registered_chains
-        - dex_pools
-        - token_address_count
-        - registered_chain_count
-        - dex_pool_count
     Builder:
       type: object
       properties:
@@ -3150,3 +3349,34 @@ components:
         - evt_block_number
         - evt_block_time
         - evt_index
+    UserFeeBalancePerChain:
+      type: object
+      properties:
+        currency:
+          type: string
+        token_decimals:
+          type: number
+          nullable: true
+        balance:
+          type: string
+          nullable: true
+        balance_raw:
+          type: string
+          nullable: true
+        total_received:
+          type: string
+          nullable: true
+        total_received_raw:
+          type: string
+          nullable: true
+        last_updated_at:
+          type: string
+          nullable: true
+      required:
+        - currency
+        - token_decimals
+        - balance
+        - balance_raw
+        - total_received
+        - total_received_raw
+        - last_updated_at

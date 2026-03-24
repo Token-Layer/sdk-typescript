@@ -145,19 +145,10 @@ export interface components {
         } | {
             /** @enum {string} */
             type: "getUserBalance";
-        } | {
-            /** @enum {string} */
-            type: "searchToken";
-        } | {
+        } | components["schemas"]["SearchTokenInfoResponse"] | {
             /** @enum {string} */
             type: "checkTokenOwnership";
-        } | {
-            /** @enum {string} */
-            type: "getUserFees";
-        } | {
-            /** @enum {string} */
-            type: "getUserFeeHistory";
-        } | {
+        } | components["schemas"]["GetUserFeesInfoResponse"] | components["schemas"]["GetUserFeeHistoryInfoResponse"] | {
             /** @enum {string} */
             type: "getLeaderboard";
         } | {
@@ -835,6 +826,32 @@ export interface components {
                 timestamp: string;
             };
         };
+        SearchTokenInfoResponse: {
+            /** @enum {string} */
+            type: "searchToken";
+            success: boolean;
+            token: components["schemas"]["TokenAbout"];
+            error?: string;
+        };
+        GetUserFeesInfoResponse: {
+            /** @enum {string} */
+            type: "getUserFees";
+            success: boolean;
+            data: {
+                balances: components["schemas"]["UserFeeBalanceViewItem"][];
+                summary: components["schemas"]["UserFeesSummary"];
+            };
+        };
+        GetUserFeeHistoryInfoResponse: {
+            /** @enum {string} */
+            type: "getUserFeeHistory";
+            success: boolean;
+            data: {
+                distributions: components["schemas"]["UserFeeHistoryItem"][];
+                total_count: number;
+                pagination: components["schemas"]["UserFeeHistoryPagination"];
+            };
+        };
         GetTokenTradesInfoResponse: {
             /** @enum {string} */
             type: "getTokenTrades";
@@ -1186,6 +1203,86 @@ export interface components {
             total_returned: number;
             has_more: boolean;
         };
+        TokenAbout: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            token_id: string;
+            external_id: number | null;
+            external_provider_id: string | null;
+            name: string;
+            symbol: string;
+            slug: string;
+            description: string | null;
+            logo: string | null;
+            banner_url: string | null;
+            video_url: string | null;
+            graduated: boolean | null;
+            graduated_at: string | null;
+            token_layer_id: string | null;
+            origin_endpoint_id: number | null;
+            origin_chain: string | null;
+            builder_code: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            primary_evm_address: string | null;
+            primary_solana_address: string | null;
+            token_addresses: components["schemas"]["TokenAboutAddress"][];
+            registered_chains: components["schemas"]["TokenAboutRegisteredChain"][];
+            dex_pools: components["schemas"]["TokenAboutDexPool"][];
+            token_address_count: number;
+            registered_chain_count: number;
+            dex_pool_count: number;
+        } | null;
+        UserFeeBalanceViewItem: {
+            account: string;
+            token_key: string;
+            token_layer_id: string | null;
+            token_name: string | null;
+            token_symbol: string | null;
+            balance: string | null;
+            total_received: string | null;
+            /** @default {} */
+            per_chain_balances: {
+                [key: string]: components["schemas"]["UserFeeBalancePerChain"];
+            };
+            last_updated_at: string | null;
+        };
+        UserFeesSummary: {
+            total_traders_referred: number;
+            total_rewards_earned_usd: string;
+            total_claimable_usd: string;
+        };
+        UserFeeHistoryItem: {
+            chain: string;
+            evt_block_number: string | number;
+            /** Format: date-time */
+            evt_block_time: string;
+            evt_tx_hash: string;
+            evt_index: string | number;
+            account: string;
+            currency: string;
+            token_layer_id: string | null;
+            token_address: string;
+            token_name: string | null;
+            token_symbol: string | null;
+            token_decimals: number | null;
+            amount: string | null;
+            amount_raw: string | null;
+            distribution_type: number;
+            distribution_name: string;
+            tracking_id: string | null;
+            activity_id: number;
+            activity_name: string;
+        };
+        UserFeeHistoryPagination: {
+            limit: number;
+            offset: number;
+            total: number;
+            has_more: boolean;
+        };
         TokenTradeInfoItem: {
             chain: string;
             evt_block_number: string | number;
@@ -1233,6 +1330,7 @@ export interface components {
             dst_eid: string | null;
         };
         TokenActivityInfoItem: {
+            pk: string;
             chain: string;
             /** @enum {string} */
             activity_type: "trade" | "transfer" | "lp" | "lifecycle";
@@ -1372,39 +1470,6 @@ export interface components {
             evt_block_number: string | number | unknown;
             updated_at: string | null;
         };
-        TokenAbout: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            token_id: string;
-            external_id: number | null;
-            external_provider_id: string | null;
-            name: string;
-            symbol: string;
-            slug: string;
-            description: string | null;
-            logo: string | null;
-            banner_url: string | null;
-            video_url: string | null;
-            graduated: boolean | null;
-            graduated_at: string | null;
-            token_layer_id: string | null;
-            origin_endpoint_id: number | null;
-            origin_chain: string | null;
-            builder_code: string | null;
-            /** Format: date-time */
-            created_at: string;
-            /** Format: date-time */
-            updated_at: string;
-            primary_evm_address: string | null;
-            primary_solana_address: string | null;
-            token_addresses: components["schemas"]["TokenAboutAddress"][];
-            registered_chains: components["schemas"]["TokenAboutRegisteredChain"][];
-            dex_pools: components["schemas"]["TokenAboutDexPool"][];
-            token_address_count: number;
-            registered_chain_count: number;
-            dex_pool_count: number;
-        } | null;
         /** @description Builder attribution information (optional). Includes address and fee in bps. */
         Builder: {
             /**
@@ -1491,6 +1556,15 @@ export interface components {
             /** Format: date-time */
             evt_block_time: string | null;
             evt_index: string | number;
+        };
+        UserFeeBalancePerChain: {
+            currency: string;
+            token_decimals: number | null;
+            balance: string | null;
+            balance_raw: string | null;
+            total_received: string | null;
+            total_received_raw: string | null;
+            last_updated_at: string | null;
         };
     };
     responses: never;

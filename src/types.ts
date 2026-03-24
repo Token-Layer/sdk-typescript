@@ -130,12 +130,7 @@ export type GetUserBalanceInfoResponse = Extract<
   InfoResponse,
   { type: "getUserBalance" }
 >;
-export type SearchTokenInfoResponse = {
-  type: "searchToken";
-  success: boolean;
-  token: unknown | null;
-  error?: string;
-} & Record<string, unknown>;
+export type SearchTokenInfoResponse = Schemas["SearchTokenInfoResponse"];
 export type CheckTokenOwnershipInfoResponse = Extract<
   InfoResponse,
   { type: "checkTokenOwnership" }
