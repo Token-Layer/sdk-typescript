@@ -354,14 +354,7 @@ components:
             - type
         - $ref: "#/components/schemas/GetUserFeesInfoResponse"
         - $ref: "#/components/schemas/GetUserFeeHistoryInfoResponse"
-        - type: object
-          properties:
-            type:
-              type: string
-              enum:
-                - getLeaderboard
-          required:
-            - type
+        - $ref: "#/components/schemas/GetLeaderboardInfoResponse"
         - type: object
           properties:
             type:
@@ -1528,6 +1521,89 @@ components:
           required:
             - distributions
             - total_count
+            - pagination
+      required:
+        - type
+        - success
+        - data
+    GetLeaderboardInfoResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - getLeaderboard
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            leaderboard:
+              type: array
+              items:
+                type: object
+                properties:
+                  rank:
+                    type: number
+                  recipient_address:
+                    type: string
+                  user_id:
+                    type: string
+                    nullable: true
+                    format: uuid
+                  username:
+                    type: string
+                    nullable: true
+                  profile_picture:
+                    type: string
+                    nullable: true
+                  total_earned_all_tokens:
+                    type: number
+                  unique_chains_count:
+                    type: number
+                  chain_balances:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        chain:
+                          type: string
+                        balance:
+                          type: number
+                      required:
+                        - chain
+                        - balance
+                required:
+                  - rank
+                  - recipient_address
+                  - user_id
+                  - username
+                  - profile_picture
+                  - total_earned_all_tokens
+                  - unique_chains_count
+                  - chain_balances
+            pagination:
+              type: object
+              properties:
+                limit:
+                  type: integer
+                  minimum: 0
+                  exclusiveMinimum: true
+                offset:
+                  type: integer
+                  minimum: 0
+                total:
+                  type: integer
+                  minimum: 0
+                has_more:
+                  type: boolean
+              required:
+                - limit
+                - offset
+                - total
+                - has_more
+          required:
+            - leaderboard
             - pagination
       required:
         - type

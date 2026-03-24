@@ -148,10 +148,7 @@ export interface components {
         } | components["schemas"]["SearchTokenInfoResponse"] | {
             /** @enum {string} */
             type: "checkTokenOwnership";
-        } | components["schemas"]["GetUserFeesInfoResponse"] | components["schemas"]["GetUserFeeHistoryInfoResponse"] | {
-            /** @enum {string} */
-            type: "getLeaderboard";
-        } | {
+        } | components["schemas"]["GetUserFeesInfoResponse"] | components["schemas"]["GetUserFeeHistoryInfoResponse"] | components["schemas"]["GetLeaderboardInfoResponse"] | {
             /** @enum {string} */
             type: "getUserPortfolio";
         } | components["schemas"]["GetTokenTradesInfoResponse"] | components["schemas"]["GetTokenTransfersInfoResponse"] | components["schemas"]["GetTokenActivityInfoResponse"] | components["schemas"]["GetTokenCandlesInfoResponse"] | components["schemas"]["GetTokenStatsInfoResponse"] | components["schemas"]["GetTokenAboutInfoResponse"];
@@ -850,6 +847,33 @@ export interface components {
                 distributions: components["schemas"]["UserFeeHistoryItem"][];
                 total_count: number;
                 pagination: components["schemas"]["UserFeeHistoryPagination"];
+            };
+        };
+        GetLeaderboardInfoResponse: {
+            /** @enum {string} */
+            type: "getLeaderboard";
+            success: boolean;
+            data: {
+                leaderboard: {
+                    rank: number;
+                    recipient_address: string;
+                    /** Format: uuid */
+                    user_id: string | null;
+                    username: string | null;
+                    profile_picture: string | null;
+                    total_earned_all_tokens: number;
+                    unique_chains_count: number;
+                    chain_balances: {
+                        chain: string;
+                        balance: number;
+                    }[];
+                }[];
+                pagination: {
+                    limit: number;
+                    offset: number;
+                    total: number;
+                    has_more: boolean;
+                };
             };
         };
         GetTokenTradesInfoResponse: {
