@@ -1193,6 +1193,9 @@ export interface components {
             volume_24h: number | null;
             price_change_24h: number | null;
             price_change_24h_percent: number | null;
+            launchpad_supply: number | null;
+            launchpad_tokens_left: number | null;
+            launchpad_progress_pct: number | null;
             trx: number | null;
             token_addresses: components["schemas"]["TokenAddress"][];
         };

@@ -2124,6 +2124,15 @@ components:
         price_change_24h_percent:
           type: number
           nullable: true
+        launchpad_supply:
+          type: number
+          nullable: true
+        launchpad_tokens_left:
+          type: number
+          nullable: true
+        launchpad_progress_pct:
+          type: number
+          nullable: true
         trx:
           type: integer
           nullable: true
@@ -2152,6 +2161,9 @@ components:
         - volume_24h
         - price_change_24h
         - price_change_24h_percent
+        - launchpad_supply
+        - launchpad_tokens_left
+        - launchpad_progress_pct
         - trx
         - token_addresses
       description: Token with volume and trading metrics
