@@ -525,6 +525,7 @@ export interface components {
              * @example 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb
              */
             builder_code?: string;
+            stage?: components["schemas"]["TokenLaunchStage"] & unknown;
             /**
              * @description Field to order results by
              * @default created_at
@@ -1219,6 +1220,12 @@ export interface components {
          * @enum {string}
          */
         ChainSlug: "solana" | "solana-devnet" | "arbitrum" | "base" | "base-sepolia" | "avalanche" | "op-bnb" | "bnb" | "bnb-testnet" | "ethereum" | "monad" | "unichain" | "unichain-testnet" | "abstract" | "polygon" | "zksync" | "zksync-testnet";
+        /**
+         * @description Token launch stage derived from indexer launch and graduation events
+         * @example graduating
+         * @enum {string|null}
+         */
+        TokenLaunchStage: "new" | "graduating" | "graduated" | null;
         /** @enum {string} */
         CandleInterval: "1m" | "5m" | "15m" | "1h" | "4h" | "1d";
         /** @description Token with volume and trading metrics */
@@ -1252,6 +1259,7 @@ export interface components {
             launchpad_progress_pct: number | null;
             trx: number | null;
             token_addresses: components["schemas"]["TokenAddress"][];
+            stage: components["schemas"]["TokenLaunchStage"];
             token_uri: string | null;
             hashtags: string[];
             indexer_metadata: components["schemas"]["TokenV2IndexerMetadata"];

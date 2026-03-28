@@ -921,6 +921,11 @@ components:
           description: Filter tokens by builder address (case-insensitive). Returns only
             tokens deployed by this builder.
           example: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+        stage:
+          allOf:
+            - $ref: "#/components/schemas/TokenLaunchStage"
+            - description: Filter tokens by launch stage. Defaults to stage-specific ordering
+                when provided without an explicit order_by.
         order_by:
           type: string
           enum:
@@ -2215,6 +2220,15 @@ components:
         ethereum, monad, unichain, unichain-testnet, abstract, polygon, zksync,
         zksync-testnet"
       example: base-sepolia
+    TokenLaunchStage:
+      type: string
+      nullable: true
+      enum:
+        - new
+        - graduating
+        - graduated
+      description: Token launch stage derived from indexer launch and graduation events
+      example: graduating
     CandleInterval:
       type: string
       enum:
@@ -2302,6 +2316,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TokenAddress"
+        stage:
+          $ref: "#/components/schemas/TokenLaunchStage"
         token_uri:
           type: string
           nullable: true
@@ -2336,6 +2352,7 @@ components:
         - launchpad_progress_pct
         - trx
         - token_addresses
+        - stage
         - token_uri
         - hashtags
         - indexer_metadata
