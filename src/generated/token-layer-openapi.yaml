@@ -2302,6 +2302,15 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TokenAddress"
+        token_uri:
+          type: string
+          nullable: true
+        hashtags:
+          type: array
+          items:
+            type: string
+        indexer_metadata:
+          $ref: "#/components/schemas/TokenV2IndexerMetadata"
       required:
         - id
         - name
@@ -2327,6 +2336,9 @@ components:
         - launchpad_progress_pct
         - trx
         - token_addresses
+        - token_uri
+        - hashtags
+        - indexer_metadata
       description: Token with volume and trading metrics
     Pagination:
       type: object
@@ -3353,6 +3365,103 @@ components:
         - dex_address
         - created_at
       description: Token address on a specific blockchain
+    TokenV2IndexerMetadata:
+      type: object
+      nullable: true
+      properties:
+        token_uri:
+          type: string
+        resolved_metadata_url:
+          type: string
+          nullable: true
+        image_url:
+          type: string
+          nullable: true
+        image_storage_path:
+          type: string
+          nullable: true
+        image_storage_url:
+          type: string
+          nullable: true
+        banner_url:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        symbol:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        created_on:
+          type: string
+          nullable: true
+        addresses:
+          nullable: true
+        token_layer_id:
+          type: string
+          nullable: true
+        hashtags:
+          type: array
+          items:
+            type: string
+        token:
+          type: string
+          nullable: true
+        website:
+          type: string
+          nullable: true
+        twitter_url:
+          type: string
+          nullable: true
+        discord_url:
+          type: string
+          nullable: true
+        telegram_url:
+          type: string
+          nullable: true
+        farcaster_url:
+          type: string
+          nullable: true
+        github_url:
+          type: string
+          nullable: true
+        socials:
+          nullable: true
+        attributes:
+          nullable: true
+        raw_json:
+          nullable: true
+        fetched_at:
+          type: string
+          format: date-time
+        immutable:
+          type: boolean
+      required:
+        - token_uri
+        - resolved_metadata_url
+        - image_url
+        - image_storage_path
+        - image_storage_url
+        - banner_url
+        - name
+        - symbol
+        - description
+        - created_on
+        - token_layer_id
+        - hashtags
+        - token
+        - website
+        - twitter_url
+        - discord_url
+        - telegram_url
+        - farcaster_url
+        - github_url
+        - fetched_at
+        - immutable
+      description: Parsed token metadata sourced from indexer.token_metadata
     TokenAboutAddress:
       type: object
       properties:

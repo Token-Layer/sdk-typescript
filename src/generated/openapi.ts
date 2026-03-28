@@ -1252,6 +1252,9 @@ export interface components {
             launchpad_progress_pct: number | null;
             trx: number | null;
             token_addresses: components["schemas"]["TokenAddress"][];
+            token_uri: string | null;
+            hashtags: string[];
+            indexer_metadata: components["schemas"]["TokenV2IndexerMetadata"];
         };
         /** @description Pagination information */
         Pagination: {
@@ -1558,6 +1561,35 @@ export interface components {
             /** Format: date-time */
             created_at: string;
         };
+        /** @description Parsed token metadata sourced from indexer.token_metadata */
+        TokenV2IndexerMetadata: {
+            token_uri: string;
+            resolved_metadata_url: string | null;
+            image_url: string | null;
+            image_storage_path: string | null;
+            image_storage_url: string | null;
+            banner_url: string | null;
+            name: string | null;
+            symbol: string | null;
+            description: string | null;
+            created_on: string | null;
+            addresses?: unknown;
+            token_layer_id: string | null;
+            hashtags: string[];
+            token: string | null;
+            website: string | null;
+            twitter_url: string | null;
+            discord_url: string | null;
+            telegram_url: string | null;
+            farcaster_url: string | null;
+            github_url: string | null;
+            socials?: unknown;
+            attributes?: unknown;
+            raw_json?: unknown;
+            /** Format: date-time */
+            fetched_at: string;
+            immutable: boolean;
+        } | null;
         TokenAboutAddress: {
             /** Format: uuid */
             id: string;
